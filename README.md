@@ -1,5 +1,10 @@
-# uStableObject
-Unity3D ScriptableObject based architecture framework
+# uStableObject, when 1 / reacts
+Unity3D ScriptableObject based architecture framework.
+
+ScriptableObject based architecture simplify wiring elements and systems together while also bringing the benefits of decoupling. It can also ease sharing data accross scenes in a simple, clean, generic an reliable way. 
+
+No more fiddly unappliable cross prefab references in scene objects, everything pings pongs through your defined assets. Never suffer from a broken reference again !
+
 
 # Getting Started
 
@@ -20,8 +25,8 @@ Creating a GameEvent listener as a monobehaviour (lives in scene)
 - Setup the UnityEvent on the listener to trigger desired feature
 
 Firing a GameEvent
-From a script with a reference to the GameEvent asset, call myGameEvent.Raise();
-It may eventually expect a parameter depending on choosen type when creating the GameEvent, for example myGameEvent.Raise(this.transform)
+- From a script with a reference to the GameEvent asset, call myGameEvent.Raise();
+- It may eventually expect a parameter depending on choosen type when creating the GameEvent, for example myTransformEvent.Raise(this.transform);
 
 
 ## Vars

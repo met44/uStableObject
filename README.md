@@ -9,27 +9,27 @@ No more fiddly unappliable cross prefab references in scene objects, everything 
 # Getting Started
 
 ## GameEvent
-### Creating a GameEvent
+#### Creating a GameEvent
 - Right click in project, goto Create > uStableObject > GameEvent
 - Choose type and click to create a GameEvent asset
 
-### Creating a GameEvent listener as an asset (lives in project)
+#### Creating a GameEvent listener as an asset (lives in project)
 - Right click in project, goto Create > uStableObject > GameEvent > AssetListeners
 - Choose matching type and click to create an asset listener
 - Plug the GameEvent in the GameEvent field of the listener
 - Setup the UnityEvent on the listener to trigger desired feature
 
-### Creating a GameEvent listener as a MonoBehaviour (lives in scene)
+#### Creating a GameEvent listener as a MonoBehaviour (lives in scene)
 - Create a GameObject, add a GameEventListener of the matching type (searching "event listener" works well to list all available types)
 - Plug the GameEvent in the GameEvent field of the listener
 - Setup the UnityEvent on the listener to trigger desired feature
 
-### Creating a GameEvent listener as a Wrapper (lives in managed memory, for use from pure C# classes)
+#### Creating a GameEvent listener as a Wrapper (for use from pure C# classes)
 - From your script, call GameEventListenerWrapper.Create(myEvent, myCallback) (a generic version is also available)
 - Keep the reference to the wrapper until done with it
 - When you are done with it, make sure to call eventWrapper.Dispose() to clean things up internally
 
-### Firing a GameEvent
+#### Firing a GameEvent
 - From a script with a reference to the GameEvent asset, call myGameEvent.Raise();
 - It may eventually expect a parameter depending on choosen type when creating the GameEvent, for example myTransformEvent.Raise(this.transform);
 

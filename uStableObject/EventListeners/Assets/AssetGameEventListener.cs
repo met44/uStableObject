@@ -7,7 +7,7 @@ using uStableObject.Utilities;
 
 namespace                               uStableObject
 {
-    [CreateAssetMenu(menuName = "uStableObject/GameEvent/AssetListener/Simple Event")]
+    [CreateAssetMenu(menuName = "uStableObject/AssetListener/Simple Event")]
     public class                        AssetGameEventListener : ScriptableObject, IGameEventListener
     {
         [SerializeField] BoolVar        _filter;
@@ -55,13 +55,13 @@ namespace                               uStableObject
             return (UnityEditor.Selection.activeObject is ScriptableObject);
         }
 
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Simple Event")]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Simple Event")]
         public static void              AddTypeAsChild()
         {
             ScriptableUtils.AddAsChild(typeof(AssetGameEventListener), "EventListener - ");
         }
 
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Simple Event", true)]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Simple Event", true)]
         public static bool              AddTypeAsChildValidation()
         {
             return (AddAsChildValidation());

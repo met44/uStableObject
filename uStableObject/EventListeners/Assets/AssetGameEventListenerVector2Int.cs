@@ -6,7 +6,7 @@ using uStableObject.Utilities;
 
 namespace                                       uStableObject
 {
-    [CreateAssetMenu(menuName = "uStableObject/GameEvent/AssetListener/Vector2 Int")]
+    [CreateAssetMenu(menuName = "uStableObject/AssetListener/Vector2 Int")]
     public class                                AssetGameEventListenerVector2Int : AssetGameEventListenerBase<Vector2Int>
     {
         public GameEventVector2Int                 _event;
@@ -16,13 +16,13 @@ namespace                                       uStableObject
         public override UnityEvent<Vector2Int>     Response { get { return (this._response); } }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Vector2Int")]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Vector2Int")]
         public static void                      AddTypeAsChild()
         {
             ScriptableUtils.AddAsChild(typeof(AssetGameEventListenerVector2Int), "EventListener - ");
         }
 
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Vector2Int", true)]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Vector2Int", true)]
         public static bool                      AddTypeAsChildValidation()
         {
             return (AddAsChildValidation());

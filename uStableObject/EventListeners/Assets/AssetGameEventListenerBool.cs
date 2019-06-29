@@ -6,7 +6,7 @@ using uStableObject.Utilities;
 
 namespace                                       uStableObject
 {
-    [CreateAssetMenu(menuName = "uStableObject/GameEvent/AssetListener/Bool")]
+    [CreateAssetMenu(menuName = "uStableObject/AssetListener/Bool")]
     public class                                AssetGameEventListenerBool : AssetGameEventListenerBase<bool>
     {
         public GameEventBool                    _event;
@@ -16,13 +16,13 @@ namespace                                       uStableObject
         public override UnityEvent<bool>        Response { get { return (this._response); } }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Bool")]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Bool")]
         public static void                      AddTypeAsChild()
         {
             ScriptableUtils.AddAsChild(typeof(AssetGameEventListenerBool), "EventListener - ");
         }
 
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - Bool", true)]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Bool", true)]
         public static bool                      AddTypeAsChildValidation()
         {
             return (AddAsChildValidation());

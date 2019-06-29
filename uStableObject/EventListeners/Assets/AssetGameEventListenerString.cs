@@ -7,7 +7,7 @@ using uStableObject.Utilities;
 
 namespace                                       uStableObject
 {
-    [CreateAssetMenu(menuName = "uStableObject/GameEvent/AssetListener/String")]
+    [CreateAssetMenu(menuName = "uStableObject/AssetListener/String")]
     public class                                AssetGameEventListenerString : AssetGameEventListenerBase<string>
     {
         public GameEventString                  _event;
@@ -17,13 +17,13 @@ namespace                                       uStableObject
         public override UnityEvent<string>      Response { get { return (this._response); } }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - String")]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - String")]
         public static void                      AddTypeAsChild()
         {
             ScriptableUtils.AddAsChild(typeof(AssetGameEventListenerString), "EventListener - ");
         }
 
-        [UnityEditor.MenuItem("Assets/Create/uStableObject/GameEvent/AssetListener/As Child - String", true)]
+        [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - String", true)]
         public static bool                      AddTypeAsChildValidation()
         {
             return (AddAsChildValidation());

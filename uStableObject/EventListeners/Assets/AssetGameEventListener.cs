@@ -58,7 +58,7 @@ namespace                               uStableObject
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Simple Event")]
         public static void              AddTypeAsChild()
         {
-            ScriptableUtils.AddAsChild(typeof(AssetGameEventListener), "EventListener - ");
+            ScriptableUtils.AddAsChild<AssetGameEventListener>("EventListener - ");
         }
 
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Simple Event", true)]

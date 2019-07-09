@@ -50,7 +50,7 @@ namespace                                   uStableObject
 
         public virtual void                 MatchEventName()
         {
-            this.name = "EventListener" + this.Event.name.Substring(this.Event.name.IndexOf(" - "));
+            this.name = "EventListener" + this.Event.name.Substring(Mathf.Max(0, this.Event.name.IndexOf(" - ")));
             UnityEditor.EditorUtility.SetDirty(this);
             UnityEditor.AssetDatabase.SaveAssets();
         }

@@ -16,22 +16,23 @@ namespace                               uStableObject.Utilities
         }
 
         //[ContextMenu("Add Event Listener Child")]
-        public static void              AddAsChild(System.Type type, string name)
+        public static T                 AddAsChild<T>(string name) where T : ScriptableObject
         {
+            T                           child = default(T);
 #if UNITY_EDITOR
-            ScriptableObject            child;
 
             if (UnityEditor.Selection.activeObject is ScriptableObject)
             {
                 var data = UnityEditor.Selection.activeObject;
-                child = ScriptableObject.CreateInstance(type);
-                child.name = name + type.ToString();
+                child = ScriptableObject.CreateInstance<T>();
+                child.name = name;
                 UnityEditor.AssetDatabase.AddObjectToAsset(child, data);
                 UnityEditor.EditorUtility.SetDirty(data);
                 UnityEditor.AssetDatabase.SaveAssets();
                 UnityEditor.Selection.activeObject = child;
             }
 #endif
+            return (child);
         }
     }
 }

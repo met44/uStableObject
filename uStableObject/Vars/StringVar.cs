@@ -45,7 +45,7 @@ namespace                                   uStableObject.Data
         [ContextMenu("Raise event")]
         public void                         RaiseEvent()
         {
-            this.Raise(this._runtimeValue);
+            this.Raise(this.Value);
         }
 #endif
     }

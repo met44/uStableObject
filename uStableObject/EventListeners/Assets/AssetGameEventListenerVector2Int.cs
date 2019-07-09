@@ -19,7 +19,7 @@ namespace                                       uStableObject
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Vector2Int")]
         public static void                      AddTypeAsChild()
         {
-            ScriptableUtils.AddAsChild(typeof(AssetGameEventListenerVector2Int), "EventListener - ");
+            ScriptableUtils.AddAsChild<AssetGameEventListenerVector2Int>("EventListener - ");
         }
 
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - Vector2Int", true)]

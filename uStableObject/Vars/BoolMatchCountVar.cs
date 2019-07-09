@@ -49,7 +49,7 @@ namespace                                   uStableObject.Data
         [UnityEditor.MenuItem("Assets/Create/uStableObject/Var/Tests/As Child - BoolMatchCount")]
         public static void                      AddTypeAsChild()
         {
-            ScriptableUtils.AddAsChild(typeof(BoolMatchCountVar), "MatchCount - ");
+            ScriptableUtils.AddAsChild<BoolMatchCountVar>("MatchCount - ");
         }
 
         [UnityEditor.MenuItem("Assets/Create/uStableObject/Var/Tests/As Child - BoolMatchCount", true)]

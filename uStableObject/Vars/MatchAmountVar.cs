@@ -43,7 +43,7 @@ namespace                                   uStableObject.Data
         [UnityEditor.MenuItem("Assets/Create/uStableObject/Var/Tests/As Child - MatchAmount")]
         public static void                      AddTypeAsChild()
         {
-            ScriptableUtils.AddAsChild(typeof(MatchAmountVar), "MatchCount - ");
+            ScriptableUtils.AddAsChild<MatchAmountVar>("MatchCount - ");
         }
 
         [UnityEditor.MenuItem("Assets/Create/uStableObject/Var/Tests/As Child - MatchAmount", true)]

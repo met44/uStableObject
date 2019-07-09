@@ -20,7 +20,7 @@ namespace                                       uStableObject
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - String")]
         public static void                      AddTypeAsChild()
         {
-            ScriptableUtils.AddAsChild(typeof(AssetGameEventListenerString), "EventListener - ");
+            ScriptableUtils.AddAsChild<AssetGameEventListenerString>("EventListener - ");
         }
 
         [UnityEditor.MenuItem("Assets/Create/uStableObject/AssetListener/As Child - String", true)]

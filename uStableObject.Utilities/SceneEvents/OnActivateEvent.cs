@@ -10,6 +10,7 @@ namespace                                       uStableObject.Utilities
         #region Input Data
         [SerializeField] UnityEventTypes.Bool   _event;
         [SerializeField] bool                   _invert;
+        [SerializeField] Scopes                 _scope;
         #endregion
 
         #region Unity
@@ -27,7 +28,21 @@ namespace                                       uStableObject.Utilities
         #region Trigger
         void                                    Perform()
         {
-            this._event.Invoke(this.gameObject.activeSelf != this._invert);
+            if (this._scope == Scopes.Self)
+            {
+                this._event.Invoke(this.gameObject.activeSelf != this._invert);
+            }
+            else
+            {
+                this._event.Invoke(this.gameObject.activeInHierarchy != this._invert);
+            }
+        }
+        #endregion
+
+        #region Data Types
+        enum                                    Scopes
+        {
+            Self, Hierarchy
         }
         #endregion
     }

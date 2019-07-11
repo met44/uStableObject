@@ -6,7 +6,7 @@ using uStableObject.Data;
 
 namespace                           uStableObject.UI
 {
-    public abstract class           EntityRow<T, E> : MonoBehaviour
+    public abstract class           EntityRowBase<T, E> : MonoBehaviour
                                     where T : IEntity 
                                     where E : UnityEvent<T>
     {
@@ -19,6 +19,10 @@ namespace                           uStableObject.UI
 
         #region Members
         T                           _entity;
+        #endregion
+
+        #region Properties
+        public T                    Entity { get { return (this._entity); } }
         #endregion
 
         #region Triggers

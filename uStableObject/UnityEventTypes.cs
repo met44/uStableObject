@@ -2,6 +2,7 @@
 using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
+using uStableObject.Data;
 
 namespace                           uStableObject
 {
@@ -29,5 +30,7 @@ namespace                           uStableObject
         public class        V2Int : UnityEvent<UnityEngine.Vector2Int> { }
         [System.Serializable]
         public class        Color : UnityEvent<UnityEngine.Color> { }
+        [System.Serializable]
+        public class        Entity : UnityEvent<IEntity> { }
     }
 }

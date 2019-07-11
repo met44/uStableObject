@@ -7,10 +7,10 @@ using uStableObject.Utilities;
 
 namespace                                   uStableObject.UI
 {
-    public abstract class                   EntityListUI<T, R, E> : MonoBehaviour
+    public abstract class                   EntityListUIBase<T, R, E> : MonoBehaviour
                                             where T : IEntity
                                             where E : UnityEvent<T>
-                                            where R : EntityRow<T, E>
+                                            where R : EntityRowBase<T, E>
     {
         #region Input Data
         [SerializeField] EntityListVar      _list;
@@ -27,7 +27,7 @@ namespace                                   uStableObject.UI
 
         #region Properties
         public T                            SelectedEntity { get; set; }
-        public IEntityListVar               ListVar { get; set; }
+        public IEntityList               ListVar { get; set; }
         #endregion
 
         #region Unity
@@ -42,14 +42,28 @@ namespace                                   uStableObject.UI
         {
             int                             i = 0;
 
-            Debug.Log("List " + this._list.name + " UI Refresh");
-            if (this._autoSelectIfNoPreselected
-                && this.SelectedEntity == null)
+            if (this._autoSelectIfNoPreselected)
             {
-                foreach (var entity in this.ListVar.Entities)
+                bool                        selectedIsInList = false;
+
+                if (this.SelectedEntity != null) //ensure entity is in list otherwise we must select another one
                 {
-                    this.SelectedEntity = (T)entity;
-                    break;
+                    foreach (var entity in this.ListVar.Entities)
+                    {
+                        if (Object.Equals(entity, this.SelectedEntity))
+                        {
+                            selectedIsInList = true;
+                            break;
+                        }
+                    }
+                }
+                if (!selectedIsInList)
+                {
+                    foreach (var entity in this.ListVar.Entities)
+                    {
+                        this.SelectedEntity = (T)entity;
+                        break;
+                    }
                 }
             }
 
@@ -80,6 +94,21 @@ namespace                                   uStableObject.UI
             {
                 this._prevEntityCount = this._instances.Count;
                 this.ResizeScrollView();
+            }
+        }
+
+        public void                         ApplySelectedEntity()
+        {
+            if (this.SelectedEntity != null)
+            {
+                foreach (var entityRow in this._instances)
+                {
+                    if (Object.Equals(entityRow.Entity, this.SelectedEntity))
+                    {
+                        entityRow.PreSelected();
+                        break;
+                    }
+                }
             }
         }
         #endregion

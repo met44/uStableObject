@@ -2,7 +2,7 @@
 
 namespace uStableObject.Data
 {
-    public interface IEntityListVar
+    public interface IEntityList
     {
         IEnumerable<IEntity> Entities { get; }
     }

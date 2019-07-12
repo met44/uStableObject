@@ -42,6 +42,7 @@ namespace                                   uStableObject.UI
         {
             int                             i = 0;
 
+            this.OnBeforeRefresh();
             if (this._autoSelectIfNoPreselected)
             {
                 bool                        selectedIsInList = false;
@@ -70,14 +71,8 @@ namespace                                   uStableObject.UI
             foreach (var entity in this.ListVar.Entities)
             {
                 UnityEngine.Profiling.Profiler.BeginSample("RefreshEntities");
-                var entityRow = this.GetEntityRow(i);
-                entityRow.SetEntity((T)entity);
-                if (Object.Equals(entity, this.SelectedEntity))
-                {
-                    entityRow.PreSelected();
-                }
+                i = this.InitEntityRow(i, (T)entity);
                 UnityEngine.Profiling.Profiler.EndSample();
-                ++i;
             }
             for (var n = this._instances.Count - 1; n >= i; --n)
             {
@@ -95,6 +90,7 @@ namespace                                   uStableObject.UI
                 this._prevEntityCount = this._instances.Count;
                 this.ResizeScrollView();
             }
+            this.OnAfterRefresh();
         }
 
         public void                         ApplySelectedEntity()
@@ -114,7 +110,21 @@ namespace                                   uStableObject.UI
         #endregion
 
         #region Helpers
-        R                                   GetEntityRow(int num)
+        protected virtual void              OnBeforeRefresh() { }
+        protected virtual void              OnAfterRefresh() { }
+
+        protected virtual int               InitEntityRow(int entityRowNum, T entity)
+        {
+            var entityRow = this.GetEntityRow(entityRowNum);
+            entityRow.SetEntity(entity);
+            if (Object.Equals(entity, this.SelectedEntity))
+            {
+                entityRow.PreSelected();
+            }
+            return (++entityRowNum);
+        }
+
+        protected R                         GetEntityRow(int num)
         {
             R                               rowInstance;
 
@@ -125,7 +135,7 @@ namespace                                   uStableObject.UI
                 int col = num % this._entitiesPerRow;
                 int row = num / this._entitiesPerRow;
                 Vector3 localPos = new Vector3(col * rowWidth, (-row) * rowheight, 0);
-                rowInstance = GoPool.Spawn(this._entityRowPrefab, this._instancesRoot.TransformPoint(localPos), Quaternion.identity, this._instancesRoot);
+                rowInstance = GoPool.Spawn(this._entityRowPrefab, this._instancesRoot.TransformPoint(localPos), this._instancesRoot.rotation, this._instancesRoot);
                 rowInstance.transform.SetSiblingIndex(num);
                 this._instances.Add(rowInstance);
             }

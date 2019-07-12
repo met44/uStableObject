@@ -4,55 +4,67 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using uStableObject.Data;
 
-namespace                           uStableObject.UI
+namespace                                   uStableObject.UI
 {
-    public abstract class           EntityRowBase<T, E> : MonoBehaviour
-                                    where T : IEntity 
-                                    where E : UnityEvent<T>
+    public abstract class                   EntityRowBase<T, E> : MonoBehaviour
+                                            where T : IEntity 
+                                            where E : UnityEvent<T>
     {
         #region Input Data
-        [SerializeField] Image[]    _icon;
-        [SerializeField] Text       _label;
-        [SerializeField] E          _onPreSelected;
-        [SerializeField] E          _onClicked;
+        [SerializeField] protected Image[]  _icon;
+        [SerializeField] protected Text     _label;
+        [SerializeField] protected E        _onPreSelected;
+        [SerializeField] protected E        _onClicked;
         #endregion
 
         #region Members
-        T                           _entity;
+        protected T                         _entity;
         #endregion
 
         #region Properties
-        public T                    Entity { get { return (this._entity); } }
+        public T                            Entity { get { return (this._entity); } }
         #endregion
 
         #region Triggers
-        public void                 SetEntity(T entity)
+        public virtual void                 SetEntity(T entity)
         {
             if (!Object.Equals(this._entity, entity))
             {
                 this._entity = entity;
-                if (this._icon != null)
-                {
-                    foreach (var image in this._icon)
-                    {
-                        image.sprite = entity.Icon;
-                    }
-                }
-                if (this._label)
-                {
-                    this._label.text = entity.Name;
-                }
+                this.InitIcon();
+                this.InitLabel();
             }
         }
 
-        public void                 PreSelected()
+        public void                         PreSelected()
         {
             this._onPreSelected.Invoke(this._entity);
         }
 
-        public void                 OnClicked()
+        public void                         OnClicked()
         {
             this._onClicked.Invoke(this._entity);
+        }
+        #endregion
+
+        #region Helpers
+        protected virtual void              InitIcon()
+        {
+            if (this._icon != null)
+            {
+                foreach (var image in this._icon)
+                {
+                    image.sprite = this._entity.Icon;
+                }
+            }
+        }
+
+        protected virtual void              InitLabel()
+        {
+            if (this._label)
+            {
+                this._label.text = this._entity.Name;
+            }
         }
         #endregion
     }

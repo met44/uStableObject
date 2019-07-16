@@ -28,7 +28,14 @@ namespace                               uStableObject
 
         private void                    OnDisable()
         {
-            this._event.Unregister(this);
+            if (this._event)
+            {
+                this._event.Unregister(this);
+            }
+            else
+            {
+                Debug.LogError("No event set in AssetListener " + this.name, this);
+            }    
         }
 
         public void                     OnEventRaised()

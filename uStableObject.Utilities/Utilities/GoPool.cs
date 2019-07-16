@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace                               uStableObject.Utilities
 {
-    public class                        GoPool : MonoBehaviour
+    public class GoPool : MonoBehaviour
     {
         #region Input Data
         #endregion
@@ -57,6 +57,7 @@ namespace                               uStableObject.Utilities
         {
             T                           instance;
             Storage                     storage;
+            GameObject                  go;
 
             if (!Instance._storage.TryGetValue(source, out storage))
             {
@@ -70,17 +71,12 @@ namespace                               uStableObject.Utilities
             }
             else
             {
-                if (instance is Component)
-                {
-                    (instance as Component).transform.SetParent(parent);
-                    (instance as Component).transform.SetPositionAndRotation(position, rotation);
-                }
-                else if (instance is GameObject)
-                {
-                    (instance as GameObject).transform.SetParent(parent);
-                    (instance as GameObject).transform.SetPositionAndRotation(position, rotation);
-                }
+                go = GetGameObject(instance);
+                go.transform.SetParent(parent);
+                go.transform.SetPositionAndRotation(position, rotation);
+                go.SetActive(true);
             }
+            Instance._spawned.Add(instance, storage);
             return (instance);
         }
 
@@ -88,6 +84,7 @@ namespace                               uStableObject.Utilities
         {
             T                           instance;
             Storage                     storage;
+            GameObject                  go;
 
             if (!Instance._storage.TryGetValue(source, out storage))
             {
@@ -101,38 +98,52 @@ namespace                               uStableObject.Utilities
             }
             else
             {
-                if (instance is Component)
-                {
-                    (instance as Component).transform.SetParent(parent);
-                }
-                else if (instance is GameObject)
-                {
-                    (instance as GameObject).transform.SetParent(parent);
-                }
+                go = GetGameObject(instance);
+                go.transform.SetParent(parent);
+                go.SetActive(true);
             }
+            Instance._spawned.Add(instance, storage);
             return (instance);
         }
 
         public static void              Despawn<T>(T instance) where T : Object
         {
             Storage                     storage;
+            GameObject                  go;
 
-            if (instance is Component)
-            {
-                (instance as Component).gameObject.SetActive(false);
-            }
-            else if (instance is GameObject)
-            {
-                (instance as GameObject).SetActive(false);
-            }
+            go = GetGameObject(instance);
+            go.SetActive(false);
             if (Instance._spawned.TryGetValue(instance, out storage))
             {
+                Instance._spawned.Remove(instance);
                 storage.Store(instance);
             }
             else
             {
-                Destroy(instance);
+                Destroy(go);
             }
+        }
+        #endregion
+
+        #region Helpers
+        static GameObject               GetGameObject<T>(T instance) where T : Object
+        {
+            GameObject                  go;
+
+            if (instance is Component)
+            {
+                go = (instance as Component).gameObject;
+            }
+            else if (instance is GameObject)
+            {
+                go = instance as GameObject;
+            }
+            else
+            {
+                go = null;
+                Debug.LogError("Wrong type of object, no gameobject to disable for " + instance.name);
+            }
+            return (go);
         }
         #endregion
 

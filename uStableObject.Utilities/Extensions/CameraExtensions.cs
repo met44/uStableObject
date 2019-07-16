@@ -38,6 +38,18 @@ namespace                       uStableObject
             return (Vector3.zero);
         }
 
+        public static Vector3   ViewportToPlane(this Camera cam, Vector3 viewportPos, Plane plane)
+        {
+            float               enter;
+            Ray                 ray = cam.ViewportPointToRay(viewportPos);
+
+            if (plane.Raycast(ray, out enter))
+            {
+                return (ray.GetPoint(enter));
+            }
+            return (Vector3.zero);
+        }
+
         /*
         public static Vector3   ViewportToWorldTerrain(this Camera cam, Vector3 vpPos)
         {

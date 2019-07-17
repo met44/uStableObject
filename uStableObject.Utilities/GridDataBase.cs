@@ -99,9 +99,16 @@ namespace                                   uStableObject.Utilities
             return (elem != null);
         }
 
-        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo)
+        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo, bool matchAll = false)
         {
-            return (this.Any(tileFrom, tileTo, this.HasTileElement));
+            if (matchAll)
+            {
+                return (this.All(tileFrom, tileTo, this.HasTileElement));
+            }
+            else
+            {
+                return (this.Any(tileFrom, tileTo, this.HasTileElement));
+            }
         }
 
         public bool                         HasTileElement(Vector2Int tile, T searchType)
@@ -120,9 +127,16 @@ namespace                                   uStableObject.Utilities
             return (Object.Equals(elem, searchType));
         }
 
-        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo, T searchType)
+        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo, T searchType, bool matchAll = false)
         {
-            return (this.Any(tileFrom, tileTo, this.HasTileElement, searchType));
+            if (matchAll)
+            {
+                return (this.All(tileFrom, tileTo, this.HasTileElement, searchType));
+            }
+            else
+            {
+                return (this.Any(tileFrom, tileTo, this.HasTileElement, searchType));
+            }
         }
 
         public void                         SetTileTransform(Vector2Int tile, Transform tr)
@@ -272,6 +286,50 @@ namespace                                   uStableObject.Utilities
                 }
             }
             return (false);
+        }
+
+        public bool                         All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, bool> action)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    if (!action(gridPos))
+                    {
+                        return (false);
+                    }
+                }
+            }
+            return (true);
+        }
+
+        public bool                         All<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, P, bool> action, P param)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    if (!action(gridPos, param))
+                    {
+                        return (false);
+                    }
+                }
+            }
+            return (true);
         }
 
         public bool                         Contains(Vector2Int tile)

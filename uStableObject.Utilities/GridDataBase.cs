@@ -338,7 +338,14 @@ namespace                                   uStableObject.Utilities
                 {
                     if (oVal is V)
                     {
-                        this._data[dataIdentifier] = val;
+                        if (Equals(val, default(V)))
+                        {
+                            this._data.Remove(dataIdentifier);
+                        }
+                        else
+                        {
+                            this._data[dataIdentifier] = val;
+                        }
                     }
                     else
                     {

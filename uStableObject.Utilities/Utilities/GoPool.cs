@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace                               uStableObject.Utilities
 {
-    public class GoPool : MonoBehaviour
+    public class                        GoPool : MonoBehaviour
     {
         #region Input Data
         #endregion

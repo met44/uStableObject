@@ -5,7 +5,7 @@ using uStableObject;
 
 namespace                                   uStableObject.Utilities
 {
-    public abstract class                   GridDataBase<T> : ScriptableObject
+    public abstract class                   GridDataBase : ScriptableObject
     {
         #region Input Data
         [SerializeField] Vector2            _mapSize;
@@ -31,121 +31,27 @@ namespace                                   uStableObject.Utilities
         #endregion
 
         #region Triggers
-        public bool                         Clear(Vector2Int tile, bool ignoreInstance = false)
+        public bool                         Clear(Vector2Int tile, bool shallowCleanup = false)
         {
             TileData                        tileData;
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
                 this._tiles.Remove(tile);
-                tileData._element = default(T);
-                if (tileData._instance && !ignoreInstance)
-                {
-                    Debug.LogError("Clearing out TileData with instance set: " + tileData._instance);
-                }
-                tileData._instance = null;
-                tileData._level = 0;
+                tileData.Clear(shallowCleanup);
                 AutoPool<TileData>.Dispose(tileData);
                 return (true);
             }
             return (false);
         }
 
-        public void                         SetTileElement(Vector2Int tile, T elem)
+        public void                         SetTileData<V>(Vector2Int tile,  IDataIdentifier dataIdentifier, V data)
         {
             TileData                        tileData;
 
             if (!this._tiles.TryGetValue(tile, out tileData))
             {
-                tileData = AutoPool<TileData>.Create();
-                this._tiles.Add(tile, tileData);
-            }
-            tileData._element = elem;
-        }
-
-        public void                         SetTileElement(Vector2Int tileFrom, Vector2Int tileTo, T elem)
-        {
-            this.ForEach(tileFrom, tileTo, this.SetTileElement, elem);
-        }
-
-        public bool                         GetTileElement(Vector2Int tile, out T elem)
-        {
-            TileData                        tileData;
-
-            if (this._tiles.TryGetValue(tile, out tileData))
-            {
-                elem = tileData._element;
-            }
-            else
-            {
-                elem = default(T);
-            }
-            return (elem != null);
-        }
-
-        public bool                         HasTileElement(Vector2Int tile)
-        {
-            T                    elem;
-            TileData                        tileData;
-
-            if (this._tiles.TryGetValue(tile, out tileData))
-            {
-                elem = tileData._element;
-            }
-            else
-            {
-                elem = default(T);
-            }
-            return (elem != null);
-        }
-
-        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo, bool matchAll = false)
-        {
-            if (matchAll)
-            {
-                return (this.All(tileFrom, tileTo, this.HasTileElement));
-            }
-            else
-            {
-                return (this.Any(tileFrom, tileTo, this.HasTileElement));
-            }
-        }
-
-        public bool                         HasTileElement(Vector2Int tile, T searchType)
-        {
-            T                               elem;
-            TileData                        tileData;
-
-            if (this._tiles.TryGetValue(tile, out tileData))
-            {
-                elem = tileData._element;
-            }
-            else
-            {
-                elem = default(T);
-            }
-            return (Object.Equals(elem, searchType));
-        }
-
-        public bool                         HasTileElement(Vector2Int tileFrom, Vector2Int tileTo, T searchType, bool matchAll = false)
-        {
-            if (matchAll)
-            {
-                return (this.All(tileFrom, tileTo, this.HasTileElement, searchType));
-            }
-            else
-            {
-                return (this.Any(tileFrom, tileTo, this.HasTileElement, searchType));
-            }
-        }
-
-        public void                         SetTileTransform(Vector2Int tile, Transform tr)
-        {
-            TileData                        tileData;
-
-            if (!this._tiles.TryGetValue(tile, out tileData))
-            {
-                if (tr)
+                if (!Equals(default(V), data))
                 {
                     tileData = AutoPool<TileData>.Create();
                     this._tiles.Add(tile, tileData);
@@ -155,78 +61,104 @@ namespace                                   uStableObject.Utilities
                     return;
                 }
             }
-            tileData._instance = tr;
+            tileData.SetValue(dataIdentifier, data);
         }
 
-        public void                         SetTileTransform(Vector2Int tileFrom, Vector2Int tileTo, Transform tr)
+        public void                         SetTileData<V>(Vector2Int tileFrom, Vector2Int tileTo,  IDataIdentifier dataIdentifier, V data)
         {
-            this.ForEach(tileFrom, tileTo, this.SetTileTransform, tr);
+            this.ForEach(tileFrom, tileTo, this.SetTileData, dataIdentifier, data);
         }
 
-        public bool                         GetTileTransform(Vector2Int tile, out Transform instance)
+        public bool                         GetTileData<V>(Vector2Int tile,  IDataIdentifier dataIdentifier, out V data)
         {
             TileData                        tileData;
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
-                instance = tileData._instance;
+                if (!tileData.TryGetValue(dataIdentifier, out data))
+                {
+                    return (false);
+                }
             }
             else
             {
-                instance = null;
+                data = default(V);
             }
-            return (instance);
+            return (data != null);
         }
 
-        public void                         SetTileLevel(Vector2Int tile, int level)
+        public bool                         HasTileData(Vector2Int tile)
         {
-            TileData                        tileData;
-
-            if (!this._tiles.TryGetValue(tile, out tileData))
-            {
-                tileData = AutoPool<TileData>.Create();
-                this._tiles.Add(tile, tileData);
-            }
-            tileData._level = level;
+            return (this._tiles.ContainsKey(tile));
         }
 
-        public void                         SetTileLevel(Vector2Int tileFrom, Vector2Int tileTo, int level)
-        {
-            this.ForEach(tileFrom, tileTo, this.SetTileLevel, level);
-        }
-
-        public bool                         GetTileLevel(Vector2Int tile, out int level)
+        public bool                         HasTileData(Vector2Int tile, IDataIdentifier dataIdentifier)
         {
             TileData                        tileData;
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
-                level = tileData._level;
-                return (true);
+                return (tileData.HasValue(dataIdentifier));
             }
-            level = -1;
             return (false);
         }
 
-        public void                         ForEach(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int> action)
+        public bool                         HasTileData<V>(Vector2Int tile, IDataIdentifier dataIdentifier, V search)
         {
-            Vector2Int                      gridPos = new Vector2Int();
-            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
-            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
-            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
-            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+            V                               data;
+            TileData                        tileData;
 
-            for (int x = xMin; x <= xMax; ++x)
+            if (this._tiles.TryGetValue(tile, out tileData))
             {
-                for (int y = yMin; y <= yMax; ++y)
+                if (!tileData.TryGetValue(dataIdentifier, out data))
                 {
-                    gridPos.Set(x, y);
-                    action(gridPos);
+                    return (false);
                 }
+            }
+            else
+            {
+                data = default(V);
+            }
+            return (Object.Equals(data, search));
+        }
+
+        public bool                         HasTileData(Vector2Int tileFrom, Vector2Int tileTo, Match match = Match.Any)
+        {
+            if (match == Match.All)
+            {
+                return (this.All(tileFrom, tileTo, this.HasTileData));
+            }
+            else
+            {
+                return (this.Any(tileFrom, tileTo, this.HasTileData));
             }
         }
 
-        public void                         ForEach<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int, P> action, P param)
+        public bool                         HasTileData<V>(Vector2Int tileFrom, Vector2Int tileTo, IDataIdentifier dataIdentifier, Match match = Match.Any)
+        {
+            if (match == Match.All)
+            {
+                return (this.All(tileFrom, tileTo, this.HasTileData, dataIdentifier));
+            }
+            else
+            {
+                return (this.Any(tileFrom, tileTo, this.HasTileData, dataIdentifier));
+            }
+        }
+
+        public bool                         HasTileData<V>(Vector2Int tileFrom, Vector2Int tileTo, IDataIdentifier dataIdentifier, V searchType, Match match = Match.Any)
+        {
+            if (match == Match.All)
+            {
+                return (this.All(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
+            }
+            else
+            {
+                return (this.Any(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
+            }
+        }
+        
+        public void                         ForEach<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int, IDataIdentifier, P> action,  IDataIdentifier dataIdentifier, P param)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -239,7 +171,7 @@ namespace                                   uStableObject.Utilities
                 for (int y = yMin; y <= yMax; ++y)
                 {
                     gridPos.Set(x, y);
-                    action(gridPos, param);
+                    action(gridPos, dataIdentifier, param);
                 }
             }
         }
@@ -266,7 +198,7 @@ namespace                                   uStableObject.Utilities
             return (false);
         }
 
-        public bool                         Any<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, P, bool> action, P param)
+        public bool                         Any(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -279,7 +211,29 @@ namespace                                   uStableObject.Utilities
                 for (int y = yMin; y <= yMax; ++y)
                 {
                     gridPos.Set(x, y);
-                    if (action(gridPos, param))
+                    if (action(gridPos, dataIdentifier))
+                    {
+                        return (true);
+                    }
+                }
+            }
+            return (false);
+        }
+
+        public bool                         Any<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    if (action(gridPos, dataIdentifier, param))
                     {
                         return (true);
                     }
@@ -310,7 +264,7 @@ namespace                                   uStableObject.Utilities
             return (true);
         }
 
-        public bool                         All<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, P, bool> action, P param)
+        public bool                         All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -323,7 +277,29 @@ namespace                                   uStableObject.Utilities
                 for (int y = yMin; y <= yMax; ++y)
                 {
                     gridPos.Set(x, y);
-                    if (!action(gridPos, param))
+                    if (!action(gridPos, dataIdentifier))
+                    {
+                        return (false);
+                    }
+                }
+            }
+            return (true);
+        }
+
+        public bool                         All<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    if (!action(gridPos, dataIdentifier, param))
                     {
                         return (false);
                     }
@@ -352,10 +328,71 @@ namespace                                   uStableObject.Utilities
         #region Data Types
         public class                        TileData
         {
-            public T                        _element;
-            public Transform                _instance;
-            public int                      _level;
+            Dictionary<object, object>      _data = new Dictionary<object, object>();
+
+            internal void                   SetValue<V>(IDataIdentifier dataIdentifier, V val)
+            {
+                object                      oVal;
+
+                if (this._data.TryGetValue(dataIdentifier, out oVal))
+                {
+                    if (oVal is V)
+                    {
+                        this._data[dataIdentifier] = val;
+                    }
+                    else
+                    {
+                        Debug.LogError("Setting different value type for identifier " + dataIdentifier);
+                    }     
+                }
+                else
+                {
+                    this._data.Add(dataIdentifier, val);
+                }
+            }
+
+            internal bool                   HasValue(IDataIdentifier dataIdentifier)
+            {
+                return (this._data.ContainsKey(dataIdentifier));
+            }
+
+            internal bool                   TryGetValue<V>(IDataIdentifier dataIdentifier, out V val)
+            {
+                object                      oVal;
+
+                if (this._data.TryGetValue(dataIdentifier, out oVal)
+                    && oVal is V)
+                {
+                    val = (V)oVal;
+                    return (true);
+                }
+                val = default(V);
+                return (false);
+            }
+
+            internal void                   Clear(bool shallowCleanup)
+            {
+                if (!shallowCleanup)
+                {
+                    foreach (var val in this._data.Values)
+                    {
+                        if (val is Component || val is GameObject)
+                        {
+                            Debug.LogError("Clearing out TileData with instance set: " + val, val as Object);
+                        }
+                    }
+                }
+                this._data.Clear();
+            }
         }
+
+        public interface                IDataIdentifier { }
         #endregion
+    }
+
+    public enum                         Match
+    {
+        All,
+        Any
     }
 }

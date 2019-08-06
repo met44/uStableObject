@@ -16,13 +16,15 @@ namespace                                   uStableObject.Utilities
         protected Func<T, IEnumerable<T>>   _neighbours;
         protected Func<T, T, int>           _heuristic;
         protected T                         _to;
+        protected int                       _ancestorsFactor;
         #endregion
 
         #region Triggers
-        public void                         Init(Func<T, IEnumerable<T>> neighbours, Func<T, T, int> heuristic)
+        public void                         Init(Func<T, IEnumerable<T>> neighbours, Func<T, T, int> heuristic, int ancestorsFactor)
         {
             this._neighbours = neighbours;
             this._heuristic = heuristic;
+            this._ancestorsFactor = ancestorsFactor;
         }
 
         public IEnumerable<T>               GetPath(T from, T to)
@@ -155,9 +157,7 @@ namespace                                   uStableObject.Utilities
             }
             this._path.Insert(0, from);
         }
-        #endregion
-        
-        #region Helpers
+
         protected virtual int               CalculateAncestors(T prevTile)
         {
             TileData                        tileData;
@@ -165,9 +165,9 @@ namespace                                   uStableObject.Utilities
             
             if (this._tilesData.TryGetValue(prevTile, out tileData))
             {
-                prevTileAncestors = tileData._ancestors;
+                prevTileAncestors = tileData._ancestors + this._ancestorsFactor;
             }
-            return (prevTileAncestors + 1);
+            return (prevTileAncestors);
         }
         #endregion
 

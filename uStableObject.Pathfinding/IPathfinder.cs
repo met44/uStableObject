@@ -5,7 +5,7 @@ namespace uStableObject.Utilities
 {
     public interface IPathfinder<T>
     {
-        IEnumerable<T> GetPath(T from, T to);
-        void Init(Func<T, IEnumerable<T>> neighbours, Func<T, T, int> heuristic, int ancestorsFactor);
+        IReadOnlyCollection<T> GetPath(T from, T to);
+        void Init(Action<T, List<T>> neighbours, Func<T, T, int> heuristic, int ancestorsFactor);
     }
 }

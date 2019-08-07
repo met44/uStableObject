@@ -20,12 +20,12 @@ namespace               uStableObject.Utilities
             this._path.Insert(0, from);
         }
 
-        protected override TileData InitTileData(Vector2Int nTile, Vector2Int prevTile)
+        protected override TileData InitTileData(Vector2Int nTile, TileData prevTileData)
         {
-            TileData data = base.InitTileData(nTile, prevTile);
+            TileData data = base.InitTileData(nTile, prevTileData);
             if (this._openedSorted.Count > 0)
             {
-                DebugEx.DrawArrow(prevTile.ToWorld(), nTile.ToWorld(), Vector3.up, Color.red, 0.15f, 1);
+                DebugEx.DrawArrow(prevTileData._tile.ToWorld(), nTile.ToWorld(), Vector3.up, Color.red, 0.15f, 1);
             }
             return (data);
         }

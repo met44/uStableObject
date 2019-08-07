@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace                                   uStableObject.Utilities
 {
-    public class                            PathfinderAStarBase<T> : IPathfinder<T>
+    public class                            PathfinderAStarBase<T> : IPathfinder<T> where T : IEquatable<T>
     {
         #region Members
         protected Dictionary<T, TileData>   _tilesData = new Dictionary<T, TileData>();
@@ -13,21 +13,26 @@ namespace                                   uStableObject.Utilities
         protected HashSet<T>                _opened = new HashSet<T>();
         protected HashSet<T>                _closed = new HashSet<T>();
         protected List<T>                   _path = new List<T>();
-        protected Func<T, IEnumerable<T>>   _neighbours;
+        protected List<T>                   _tileNeighbours = new List<T>();
+        protected Action<T, List<T>>        _neighbours;
         protected Func<T, T, int>           _heuristic;
         protected T                         _to;
         protected int                       _ancestorsFactor;
         #endregion
 
+        #region Properties
+        public IReadOnlyDictionary<T, TileData> TilesData { get { return (this._tilesData); } }
+        #endregion
+
         #region Triggers
-        public void                         Init(Func<T, IEnumerable<T>> neighbours, Func<T, T, int> heuristic, int ancestorsFactor)
+        public void                         Init(Action<T, List<T>> neighbours, Func<T, T, int> heuristic, int ancestorsFactor)
         {
             this._neighbours = neighbours;
             this._heuristic = heuristic;
             this._ancestorsFactor = ancestorsFactor;
         }
 
-        public IEnumerable<T>               GetPath(T from, T to)
+        public IReadOnlyCollection<T>       GetPath(T from, T to)
         {
             this._to = to;
             if (this._neighbours == null || this._heuristic == null)
@@ -38,8 +43,9 @@ namespace                                   uStableObject.Utilities
             {
                 try
                 {
-                    this._path.Clear();
-                    this.Open(from, default(T));
+                    UnityEngine.Profiling.Profiler.BeginSample("AStar.GetPath");
+                    this.Clear();
+                    this.Open(from, null);
                     if (!this.CloseBest())
                     {
                         while (this._openedSorted.Count > 0)
@@ -56,49 +62,77 @@ namespace                                   uStableObject.Utilities
                     {
                         this._path.Insert(0, from);
                     }
-                    foreach (var tileData in this._tilesData.Values)
-                    {
-                        AutoPool<TileData>.Dispose(tileData);
-                    }
+                    UnityEngine.Profiling.Profiler.EndSample();
                 }
                 catch (Exception ex)
                 {
                     Debug.LogException(ex);
                 }
-                this._tilesData.Clear();
-                this._openedSorted.Clear();
-                this._opened.Clear();
-                this._closed.Clear();
             }
             return (this._path);
+        }
+
+        //Clears internal data including path, pools reuasable bits
+        public void                         Clear()
+        {
+            UnityEngine.Profiling.Profiler.BeginSample("AStar.Clear");
+            foreach (var tileData in this._tilesData.Values)
+            {
+                AutoPool<TileData>.Dispose(tileData);
+            }
+            this._tilesData.Clear();
+            this._openedSorted.Clear();
+            this._opened.Clear();
+            this._closed.Clear();
+            this._path.Clear();
+            UnityEngine.Profiling.Profiler.EndSample();
+        }
+
+        //Clears everything out without pooling, letting garbage bits go to collector
+        public void                         Flush()
+        {
+            this._tilesData.Clear();
+            this._openedSorted.Clear();
+            this._opened.Clear();
+            this._closed.Clear();
+            this._path.Clear();
         }
         #endregion
 
         #region Helpers
         bool                                CloseBest()
         {
+            TileData                        tileData;
+
+            UnityEngine.Profiling.Profiler.BeginSample("AStar.CloseBest");
             T tile = this._openedSorted[0];
-            if (object.Equals(tile, this._to))
+            if (tile.Equals(this._to))
             {
+                UnityEngine.Profiling.Profiler.EndSample();
                 return (true);
             }
+            this._tilesData.TryGetValue(tile, out tileData); //doing this here avoid the dict lookup for each neighbour
             this._openedSorted.RemoveAt(0);
             this._opened.Remove(tile);
             this._closed.Add(tile);
-            foreach (var nTile in this._neighbours(tile))
+            this._tileNeighbours.Clear();
+            this._neighbours(tile, this._tileNeighbours);
+            foreach (var nTile in this._tileNeighbours)
             {
                 if (!this._opened.Contains(nTile)
                     && !this._closed.Contains(nTile))
                 {
-                    this.Open(nTile, tile);
+                    this.Open(nTile, tileData);
                 }
             }
+            UnityEngine.Profiling.Profiler.EndSample();
             return (false);
         }
 
-        void                                Open(T nTile, T prevTile)
+        void                                Open(T nTile, TileData prevTileData)
         {
-            TileData data = this.InitTileData(nTile, prevTile);
+            UnityEngine.Profiling.Profiler.BeginSample("AStar.Open");
+            TileData data = this.InitTileData(nTile, prevTileData);
 
             //doing the bookkeeping of opened tiles sorted by heuristic will be faster
             int openedFrom = 0;
@@ -135,16 +169,21 @@ namespace                                   uStableObject.Utilities
             */
             this._openedSorted.Insert(iTile, nTile);
             this._opened.Add(nTile);
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
-        protected virtual TileData          InitTileData(T nTile, T prevTile)
+        protected virtual TileData          InitTileData(T nTile, TileData prevTileData)
         {
+            UnityEngine.Profiling.Profiler.BeginSample("AStar.InitTileData");
             TileData data = AutoPool<TileData>.Create();
-            data._tile = nTile;
-            data._prev = prevTile;
-            data._ancestors = this.CalculateAncestors(prevTile);
-            data._heuristic = this._heuristic(nTile, this._to) + data._ancestors;
             this._tilesData.Add(nTile, data);
+            data._tile = nTile;
+            data._prev = prevTileData != null ? prevTileData._tile : default(T); 
+            data._ancestors = this.CalculateAncestors(prevTileData);
+
+            //calling heuristic() must remain after everthing else so it is possible for it to poll for the tile ancestors in the heuristic calculation
+            data._heuristic = this._heuristic(nTile, this._to) + data._ancestors;
+            UnityEngine.Profiling.Profiler.EndSample();
             return (data);
         }
 
@@ -158,14 +197,13 @@ namespace                                   uStableObject.Utilities
             this._path.Insert(0, from);
         }
 
-        protected virtual int               CalculateAncestors(T prevTile)
+        protected virtual int               CalculateAncestors(TileData prevTileData)
         {
-            TileData                        tileData;
             int                             prevTileAncestors = 0;
             
-            if (this._tilesData.TryGetValue(prevTile, out tileData))
+            if (prevTileData != null)
             {
-                prevTileAncestors = tileData._ancestors + this._ancestorsFactor;
+                prevTileAncestors = prevTileData._ancestors + this._ancestorsFactor;
             }
             return (prevTileAncestors);
         }

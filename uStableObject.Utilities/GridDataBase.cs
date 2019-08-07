@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uStableObject;
 
-namespace                                   uStableObject.Utilities
+namespace uStableObject.Utilities
 {
     public abstract class                   GridDataBase : ScriptableObject
     {
@@ -66,7 +66,7 @@ namespace                                   uStableObject.Utilities
 
         public void                         SetTileData<V>(Vector2Int tileFrom, Vector2Int tileTo,  IDataIdentifier dataIdentifier, V data)
         {
-            this.ForEach(tileFrom, tileTo, this.SetTileData, dataIdentifier, data);
+            ForEach(tileFrom, tileTo, this.SetTileData, dataIdentifier, data);
         }
 
         public bool                         GetTileData<V>(Vector2Int tile,  IDataIdentifier dataIdentifier, out V data)
@@ -126,11 +126,11 @@ namespace                                   uStableObject.Utilities
         {
             if (match == Match.All)
             {
-                return (this.All(tileFrom, tileTo, this.HasTileData));
+                return (All(tileFrom, tileTo, this.HasTileData));
             }
             else
             {
-                return (this.Any(tileFrom, tileTo, this.HasTileData));
+                return (Any(tileFrom, tileTo, this.HasTileData));
             }
         }
 
@@ -138,11 +138,11 @@ namespace                                   uStableObject.Utilities
         {
             if (match == Match.All)
             {
-                return (this.All(tileFrom, tileTo, this.HasTileData, dataIdentifier));
+                return (All(tileFrom, tileTo, this.HasTileData, dataIdentifier));
             }
             else
             {
-                return (this.Any(tileFrom, tileTo, this.HasTileData, dataIdentifier));
+                return (Any(tileFrom, tileTo, this.HasTileData, dataIdentifier));
             }
         }
 
@@ -150,15 +150,69 @@ namespace                                   uStableObject.Utilities
         {
             if (match == Match.All)
             {
-                return (this.All(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
+                return (All(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
             }
             else
             {
-                return (this.Any(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
+                return (Any(tileFrom, tileTo, this.HasTileData, dataIdentifier, searchType));
+            }
+        }
+
+        public bool                         Contains(Vector2Int tile)
+        {
+            return (tile.x > -this.MapSize.x / 2 && tile.x < this.MapSize.x / 2
+                    && tile.y > -this.MapSize.y / 2 && tile.y < this.MapSize.y / 2);
+        }
+
+        public bool                         Contains(Vector2Int tileFrom, Vector2Int tileTo)
+        {
+            return (this.Contains(tileFrom) && this.Contains(tileTo));
+        }
+
+        public void                         Clear()
+        {
+            this._tiles.Clear();
+        }
+        #endregion
+
+        #region Statics
+        public static void                  ForEach(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int> action)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    action(gridPos);
+                }
             }
         }
         
-        public void                         ForEach<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int, IDataIdentifier, P> action,  IDataIdentifier dataIdentifier, P param)
+        public static void                  ForEach<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int, P> action, P param)
+        {
+            Vector2Int                      gridPos = new Vector2Int();
+            int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
+            int                             xMax = Mathf.Max(tileFrom.x, tileTo.x);
+            int                             yMin = Mathf.Min(tileFrom.y, tileTo.y);
+            int                             yMax = Mathf.Max(tileFrom.y, tileTo.y);
+
+            for (int x = xMin; x <= xMax; ++x)
+            {
+                for (int y = yMin; y <= yMax; ++y)
+                {
+                    gridPos.Set(x, y);
+                    action(gridPos, param);
+                }
+            }
+        }
+        
+        public static void                  ForEach<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Action<Vector2Int, IDataIdentifier, P> action, IDataIdentifier dataIdentifier, P param)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -176,7 +230,7 @@ namespace                                   uStableObject.Utilities
             }
         }
 
-        public bool                         Any(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, bool> action)
+        public static bool                  Any(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, bool> action)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -198,7 +252,7 @@ namespace                                   uStableObject.Utilities
             return (false);
         }
 
-        public bool                         Any(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
+        public static bool                  Any(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -220,7 +274,7 @@ namespace                                   uStableObject.Utilities
             return (false);
         }
 
-        public bool                         Any<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
+        public static bool                  Any<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -242,7 +296,7 @@ namespace                                   uStableObject.Utilities
             return (false);
         }
 
-        public bool                         All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, bool> action)
+        public static bool                  All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, bool> action)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -264,7 +318,7 @@ namespace                                   uStableObject.Utilities
             return (true);
         }
 
-        public bool                         All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
+        public static bool                  All(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, bool> action,  IDataIdentifier dataIdentifier)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -286,7 +340,7 @@ namespace                                   uStableObject.Utilities
             return (true);
         }
 
-        public bool                         All<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
+        public static bool                  All<P>(Vector2Int tileFrom, Vector2Int tileTo, System.Func<Vector2Int, IDataIdentifier, P, bool> action,  IDataIdentifier dataIdentifier, P param)
         {
             Vector2Int                      gridPos = new Vector2Int();
             int                             xMin = Mathf.Min(tileFrom.x, tileTo.x);
@@ -306,22 +360,6 @@ namespace                                   uStableObject.Utilities
                 }
             }
             return (true);
-        }
-
-        public bool                         Contains(Vector2Int tile)
-        {
-            return (tile.x > -this.MapSize.x / 2 && tile.x < this.MapSize.x / 2
-                    && tile.y > -this.MapSize.y / 2 && tile.y < this.MapSize.y / 2);
-        }
-
-        public bool                         Contains(Vector2Int tileFrom, Vector2Int tileTo)
-        {
-            return (this.Contains(tileFrom) && this.Contains(tileTo));
-        }
-
-        public void                         Clear()
-        {
-            this._tiles.Clear();
         }
         #endregion
 
@@ -392,8 +430,6 @@ namespace                                   uStableObject.Utilities
                 this._data.Clear();
             }
         }
-
-        public interface                IDataIdentifier { }
         #endregion
     }
 

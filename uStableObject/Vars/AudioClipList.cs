@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace                                   uStableObject.Data
 {
-    [CreateAssetMenu(menuName = "uStableObject/Var/AudioClip list", order = 1)]
+    [CreateAssetMenu(menuName = "uStableObject/Var/AudioClip List", order = 1)]
     public class                            AudioClipList : ScriptableObject
     {
         [SerializeField] AudioClip[]        _clips;

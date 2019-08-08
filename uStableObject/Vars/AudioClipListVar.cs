@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace uStableObject.Data
 {
-    [CreateAssetMenu(menuName = "uStableObject/Var/AudioClip List", order = 2)]
+    [CreateAssetMenu(menuName = "uStableObject/Var/AudioClip List Var", order = 2)]
     public class                            AudioClipListVar : GameEventData
     {
         [SerializeField] AudioClipList      _list;

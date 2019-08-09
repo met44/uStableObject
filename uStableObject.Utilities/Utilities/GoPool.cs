@@ -10,8 +10,8 @@ namespace                               uStableObject.Utilities
         #endregion
 
         #region Members
-        Dictionary<object, Storage>     _storage = new Dictionary<object, Storage>();
-        Dictionary<Object, Storage>     _spawned = new Dictionary<Object, Storage>();
+        Dictionary<GameObject, Storage> _storage = new Dictionary<GameObject, Storage>();
+        Dictionary<GameObject, Storage> _spawned = new Dictionary<GameObject, Storage>();
         #endregion
 
         #region Singleton
@@ -57,17 +57,20 @@ namespace                               uStableObject.Utilities
         {
             T                           instance;
             Storage                     storage;
+            GameObject                  sourceGo;
             GameObject                  go;
 
-            if (!Instance._storage.TryGetValue(source, out storage))
+            sourceGo = GetGameObject(source);
+            if (!Instance._storage.TryGetValue(sourceGo, out storage))
             {
                 storage = AutoPool<Storage>.Create();
-                Instance._storage.Add(source, storage);
+                Instance._storage.Add(sourceGo, storage);
             }
             instance = storage.Get<T>();
             if (instance == null)
             {
                 instance = Instantiate(source, position, rotation, parent);
+                go = GetGameObject(instance);
             }
             else
             {
@@ -76,7 +79,7 @@ namespace                               uStableObject.Utilities
                 go.transform.SetPositionAndRotation(position, rotation);
                 go.SetActive(true);
             }
-            Instance._spawned.Add(instance, storage);
+            Instance._spawned.Add(go, storage);
             return (instance);
         }
 
@@ -84,17 +87,20 @@ namespace                               uStableObject.Utilities
         {
             T                           instance;
             Storage                     storage;
+            GameObject                  sourceGo;
             GameObject                  go;
 
-            if (!Instance._storage.TryGetValue(source, out storage))
+            sourceGo = GetGameObject(source);
+            if (!Instance._storage.TryGetValue(sourceGo, out storage))
             {
                 storage = AutoPool<Storage>.Create();
-                Instance._storage.Add(source, storage);
+                Instance._storage.Add(sourceGo, storage);
             }
             instance = storage.Get<T>();
             if (instance == null)
             {
                 instance = Instantiate(source, parent);
+                go = GetGameObject(instance);
             }
             else
             {
@@ -102,7 +108,7 @@ namespace                               uStableObject.Utilities
                 go.transform.SetParent(parent);
                 go.SetActive(true);
             }
-            Instance._spawned.Add(instance, storage);
+            Instance._spawned.Add(go, storage);
             return (instance);
         }
 
@@ -113,9 +119,9 @@ namespace                               uStableObject.Utilities
 
             go = GetGameObject(instance);
             go.SetActive(false);
-            if (Instance._spawned.TryGetValue(instance, out storage))
+            if (Instance._spawned.TryGetValue(go, out storage))
             {
-                Instance._spawned.Remove(instance);
+                Instance._spawned.Remove(go);
                 storage.Store(instance);
             }
             else
@@ -157,7 +163,15 @@ namespace                               uStableObject.Utilities
             {
                 if (this._pooled.Count > 0)
                 {
-                    return ((T)this._pooled.Dequeue());
+                    var instance = this._pooled.Dequeue();
+                    if (instance is T)
+                    {
+                        return ((T)instance);
+                    }
+                    else
+                    {
+                        return ((instance as GameObject).GetComponent<T>());
+                    }
                 }
                 return (null);
             }

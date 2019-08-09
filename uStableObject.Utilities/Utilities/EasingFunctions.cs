@@ -782,7 +782,7 @@ public class EasingFunction
 
     }
 
-    public delegate float Function(float s, float e, float v);
+    public delegate float Function(float s, float e = 0, float v = 1);
 
     /// <summary>
     /// Returns the function associated to the easingFunction enum. This value returned should be cached as it allocates memory

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using uStableObject.Data;
 
 namespace                               uStableObject.Tweening
@@ -8,56 +9,81 @@ namespace                               uStableObject.Tweening
     public class                        FollowVarTween : MonoBehaviour
     {
         #region Input Data
+        [SerializeField] EasingFunction.Ease _easing;
+        [SerializeField] Modes          _mode;
         [SerializeField] Vector3        _startOffset;
         [SerializeField] Vector3        _wobbleOffset;
         [SerializeField] TransformVar   _tweenTarget;
-        [SerializeField] float          _tweenDuration;
+        [SerializeField] float          _tweenDurationMin;
+        [SerializeField] float          _tweenDurationMAx;
         [SerializeField] float          _maxDistance;
+        [SerializeField] bool           _rotation;
+        [SerializeField] UnityEvent     _onDone;
         #endregion
 
         #region Members
-        Vector3                         _tweenTargetLocalPosition;
-        Vector3                         _tweenTargetLocalRotation;
         Vector3                         _tweenTargetWorldPositionFrom;
         Vector3                         _tweenTargetWorldPositionTo;
-        Vector3                         _lastTargetWorldPosition;
+        Vector3                         _lastWorldPosition;
         float                           _followStartTime;
+        float                           _duration;
         bool                            _tweening;
         #endregion
 
         #region Unity
         void                            Start()
         {
-            this._tweenTargetLocalPosition = this.transform.position - this._tweenTarget.Transform.position;
-            this._tweenTargetLocalRotation = this.transform.eulerAngles - this._tweenTarget.Transform.eulerAngles;
-            this._lastTargetWorldPosition = this._tweenTarget.Transform.position + this._startOffset;
+            if (this._tweenTarget)
+            {
+                this._lastWorldPosition = this._tweenTarget.Transform.position + this._startOffset;
+            }
         }
 
         void                            Update()
         {
-            this.UpdateLastWorldPosition();
-            this.ApplyTween();
+            if (this._tweenTarget)
+            {
+                if (this._mode == Modes.Auto)
+                {
+                    this.UpdateTargetPosition();
+                }
+                this.ApplyTween();
+            }
+        }
+        #endregion
+
+        #region Triggers
+        public void                     SetTargetTransform(TransformVar trVar)
+        {
+            this._tweenTarget = trVar;
+            this._lastWorldPosition = this.transform.position + this._startOffset;
+        }
+
+        public void                     GotoTarget()
+        {
+            this._tweenTargetWorldPositionFrom = this._lastWorldPosition;
+            this._tweenTargetWorldPositionTo = this._tweenTarget.Transform.position;
+            if (this._maxDistance > 0)
+            {
+                float distance = Vector3.Distance(this._tweenTargetWorldPositionFrom, this._tweenTargetWorldPositionTo);
+                if (distance > this._maxDistance)
+                {
+                    this._tweenTargetWorldPositionFrom = Vector3.Lerp(this._tweenTargetWorldPositionTo, this._tweenTargetWorldPositionFrom, this._maxDistance / distance);
+                }
+            }
+            this._lastWorldPosition = this._tweenTarget.Transform.position;
+            this._followStartTime = Time.time;
+            this._duration = Mathf.Lerp(this._tweenDurationMin, this._tweenDurationMAx, Random.value);
+            this._tweening = true;
         }
         #endregion
 
         #region Helpers
-        void                            UpdateLastWorldPosition()
+        void                            UpdateTargetPosition()
         {
-            if (Vector3.Distance(this._lastTargetWorldPosition, this._tweenTarget.Transform.position) > 0.01f)
+            if (Vector3.Distance(this._lastWorldPosition, this._tweenTarget.Transform.position) > 0.01f)
             {
-                this._tweenTargetWorldPositionFrom = this._lastTargetWorldPosition + this._tweenTargetLocalPosition;
-                this._tweenTargetWorldPositionTo = this._tweenTarget.Transform.position + this._tweenTargetLocalPosition;
-                if (this._maxDistance > 0)
-                {
-                    float distance = Vector3.Distance(this._tweenTargetWorldPositionFrom, this._tweenTargetWorldPositionTo);
-                    if (distance > this._maxDistance)
-                    {
-                        this._tweenTargetWorldPositionFrom = Vector3.Lerp(this._tweenTargetWorldPositionTo, this._tweenTargetWorldPositionFrom, this._maxDistance / distance);
-                    }
-                }
-                this._lastTargetWorldPosition = this._tweenTarget.Transform.position;
-                this._followStartTime = Time.time;
-                this._tweening = true;
+                this.GotoTarget();
             }
         }
 
@@ -65,20 +91,34 @@ namespace                               uStableObject.Tweening
         {
             if (this._tweening)
             {
-                float timeProgress = (Time.time - this._followStartTime) / this._tweenDuration;
+                float timeProgress = (Time.time - this._followStartTime) / this._duration;
                 if (timeProgress >= 1)
                 {
                     this._tweening = false;
-                    this.transform.localPosition = this._tweenTargetLocalPosition;
-                    this.transform.localEulerAngles = this._tweenTargetLocalRotation;
+                    this.transform.position = this._tweenTargetWorldPositionTo;
+                    if (this._rotation)
+                    {
+                        this.transform.eulerAngles = this._tweenTarget.Transform.eulerAngles;
+                    }
+                    this._onDone.Invoke();
                 }
                 else
                 {
-                    float alpha = EasingFunction.EaseOutElastic(timeProgress);
+                    float alpha = EasingFunction.GetEasingFunction(this._easing)(timeProgress);
                     this.transform.position = Vector3.LerpUnclamped(this._tweenTargetWorldPositionFrom, this._tweenTargetWorldPositionTo, alpha);
-                    this.transform.localEulerAngles = Vector3.LerpUnclamped(this._wobbleOffset, this._tweenTargetLocalRotation, alpha);
+                    if (this._rotation)
+                    {
+                        this.transform.eulerAngles = Vector3.LerpUnclamped(this._wobbleOffset, this._tweenTarget.Transform.eulerAngles, alpha);
+                    }
                 }
             }
+        }
+        #endregion
+
+        #region
+        public enum                     Modes
+        {
+            Auto, Manual
         }
         #endregion
     }

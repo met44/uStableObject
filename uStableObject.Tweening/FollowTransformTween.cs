@@ -22,7 +22,6 @@ namespace                               uStableObject.Tweening
 
         #region Members
         Vector3                         _tweenTargetWorldPositionFrom;
-        Vector3                         _tweenTargetWorldPositionTo;
         Vector3                         _lastWorldPosition;
         float                           _followStartTime;
         float                           _duration;
@@ -61,13 +60,12 @@ namespace                               uStableObject.Tweening
         public void                     GotoTarget()
         {
             this._tweenTargetWorldPositionFrom = this._lastWorldPosition;
-            this._tweenTargetWorldPositionTo = this._tweenTarget.position;
             if (this._maxDistance > 0)
             {
-                float distance = Vector3.Distance(this._tweenTargetWorldPositionFrom, this._tweenTargetWorldPositionTo);
+                float distance = Vector3.Distance(this._tweenTargetWorldPositionFrom, this._tweenTarget.position);
                 if (distance > this._maxDistance)
                 {
-                    this._tweenTargetWorldPositionFrom = Vector3.Lerp(this._tweenTargetWorldPositionTo, this._tweenTargetWorldPositionFrom, this._maxDistance / distance);
+                    this._tweenTargetWorldPositionFrom = Vector3.Lerp(this._tweenTarget.position, this._tweenTargetWorldPositionFrom, this._maxDistance / distance);
                 }
             }
             this._lastWorldPosition = this._tweenTarget.position;
@@ -94,7 +92,7 @@ namespace                               uStableObject.Tweening
                 if (timeProgress >= 1)
                 {
                     this._tweening = false;
-                    this.transform.position = this._tweenTargetWorldPositionTo;
+                    this.transform.position = this._tweenTarget.position;
                     if (this._rotation)
                     {
                         this.transform.eulerAngles = this._tweenTarget.eulerAngles;
@@ -104,7 +102,7 @@ namespace                               uStableObject.Tweening
                 else
                 {
                     float alpha = EasingFunction.GetEasingFunction(this._easing)(timeProgress);
-                    this.transform.position = Vector3.LerpUnclamped(this._tweenTargetWorldPositionFrom, this._tweenTargetWorldPositionTo, alpha);
+                    this.transform.position = Vector3.LerpUnclamped(this._tweenTargetWorldPositionFrom, this._tweenTarget.position, alpha);
                     if (this._rotation)
                     {
                         this.transform.eulerAngles = Vector3.LerpUnclamped(this._wobbleOffset, this._tweenTarget.eulerAngles, alpha);

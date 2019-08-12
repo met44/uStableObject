@@ -1,30 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using uStableObject.Data;
 
 namespace                       uStableObject
 {
     public static class         CameraExtensions
     {
-        /*
-        public static Vector3   WorldToUGuiPoint(this Camera cam, Vector3 worldPos)
+        public static Vector3   WorldToCanvasPoint(this Camera cam, Canvas canvas, Vector3 worldPos)
         {
             Vector3 onScreenPos = cam.WorldToViewportPoint(worldPos);
-            onScreenPos.x = (onScreenPos.x - 0.5f) * (Screen.width / GameData.UI.HudCanvas.scaleFactor );
-            onScreenPos.y = (onScreenPos.y - 0.5f) * (Screen.height / GameData.UI.HudCanvas.scaleFactor);
+            onScreenPos.x = (onScreenPos.x - 0.5f) * (Screen.width / canvas.scaleFactor );
+            onScreenPos.y = (onScreenPos.y - 0.5f) * (Screen.height / canvas.scaleFactor);
             onScreenPos.z = 0;
             return (onScreenPos);
         }
 
-        public static Vector3   ScreenToUGuiPoint(this Camera cam, Vector3 screenPos)
+        public static Vector3   CanvasToWorldPoint(this Camera cam, Vector3 screenPos)
+        {
+            return (RectTransformUtility.ScreenPointToRay(cam, screenPos).GetPoint(screenPos.z));
+        }
+
+        public static Vector3   ScreenToCanvasPoint(this Camera cam, Canvas canvas, Vector3 screenPos)
         {
             Vector3 onScreenPos = cam.ScreenToViewportPoint(screenPos);
-            onScreenPos.x = (onScreenPos.x - 0.5f) * (Screen.width / GameData.UI.HudCanvas.scaleFactor );
-            onScreenPos.y = (onScreenPos.y - 0.5f) * (Screen.height / GameData.UI.HudCanvas.scaleFactor);
+            onScreenPos.x = (onScreenPos.x - 0.5f) * (Screen.width / canvas.scaleFactor );
+            onScreenPos.y = (onScreenPos.y - 0.5f) * (Screen.height / canvas.scaleFactor);
             return (onScreenPos);
         }
-        */
 
         public static Vector3   ScreenToPlane(this Camera cam, Vector3 screenPos, Plane plane)
         {

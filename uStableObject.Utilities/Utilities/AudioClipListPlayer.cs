@@ -40,6 +40,14 @@ namespace                                   uStableObject.Utilities
             }
         }
 
+        public void                         PlayRandomIfNotPlaying()
+        {
+            if (this.gameObject.activeInHierarchy && !this._audioSource.isPlaying)
+            {
+                this.PlayRandom();
+            }
+        }
+
         public void                         CancelPlay()
         {
             this._audioSource.Stop();

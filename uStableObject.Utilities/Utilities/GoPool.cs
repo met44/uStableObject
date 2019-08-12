@@ -122,7 +122,7 @@ namespace                               uStableObject.Utilities
             if (Instance._spawned.TryGetValue(go, out storage))
             {
                 Instance._spawned.Remove(go);
-                storage.Store(instance);
+                storage.Store(go);
             }
             else
             {
@@ -157,26 +157,29 @@ namespace                               uStableObject.Utilities
         [System.Serializable]
         public class                    Storage
         {
-            Queue                       _pooled = new Queue();
+            Queue<GameObject>           _pooled = new Queue<GameObject>();
             
             public T                    Get<T>() where T : Object
             {
                 if (this._pooled.Count > 0)
                 {
                     var instance = this._pooled.Dequeue();
-                    if (instance is T)
-                    {
-                        return ((T)instance);
-                    }
-                    else
-                    {
-                        return ((instance as GameObject).GetComponent<T>());
-                    }
+                    return (instance.GetComponent<T>());
+                }
+                return (null);
+            }
+            
+            public GameObject           Get()
+            {
+                if (this._pooled.Count > 0)
+                {
+                    var instance = this._pooled.Dequeue();
+                    return (instance);
                 }
                 return (null);
             }
 
-            public void                 Store<T>(T instance) where T : Object
+            public void                 Store(GameObject instance) 
             {
                 this._pooled.Enqueue(instance);
             }

@@ -17,9 +17,20 @@ namespace                       uStableObject
             return (onScreenPos);
         }
 
-        public static Vector3   CanvasToWorldPoint(this Camera cam, Vector3 screenPos)
+        public static Vector3   CanvasToWorldPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
         {
-            return (RectTransformUtility.ScreenPointToRay(cam, screenPos).GetPoint(screenPos.z));
+            Vector3 localCanvasPos = (canvas.transform as RectTransform).InverseTransformPoint(inCanvasWorldPos);
+            localCanvasPos.z = depth;
+            return (cam.ScreenToWorldPoint(localCanvasPos));
+        }
+
+        public static Vector3   CanvasToCameraPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
+        {
+            Vector3 localCanvasPos = (canvas.transform as RectTransform).InverseTransformPoint(inCanvasWorldPos) + (canvas.transform as RectTransform).anchoredPosition3D;
+            Vector3 viewPortPos = new Vector3(localCanvasPos.x / Screen.width, localCanvasPos.y / Screen.height);
+            Vector3 cameraLocalPos = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(viewPortPos));
+            cameraLocalPos.z = depth;
+            return (cameraLocalPos);
         }
 
         public static Vector3   ScreenToCanvasPoint(this Camera cam, Canvas canvas, Vector3 screenPos)

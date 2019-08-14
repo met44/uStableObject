@@ -69,22 +69,37 @@ namespace uStableObject.Utilities
             ForEach(tileFrom, tileTo, this.SetTileData, dataIdentifier, data);
         }
 
+        public void                         UnsetTileData<V>(Vector2Int tile,  IDataIdentifier dataIdentifier)
+        {
+            TileData                        tileData;
+
+            if (this._tiles.TryGetValue(tile, out tileData))
+            {
+                tileData.UnsetValue<V>(dataIdentifier);
+            }
+        }
+
+        public void                         UnsetTileData<V>(Vector2Int tileFrom, Vector2Int tileTo,  IDataIdentifier dataIdentifier)
+        {
+            ForEach(tileFrom, tileTo, this.UnsetTileData<V>, dataIdentifier);
+        }
+
         public bool                         GetTileData<V>(Vector2Int tile,  IDataIdentifier dataIdentifier, out V data)
         {
             TileData                        tileData;
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
-                if (!tileData.TryGetValue(dataIdentifier, out data))
+                if (tileData.TryGetValue(dataIdentifier, out data))
                 {
-                    return (false);
+                    return (data != null);
                 }
             }
             else
             {
                 data = default(V);
             }
-            return (data != null);
+            return (false);
         }
 
         public bool                         HasTileData(Vector2Int tile)
@@ -110,16 +125,16 @@ namespace uStableObject.Utilities
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
-                if (!tileData.TryGetValue(dataIdentifier, out data))
+                if (tileData.TryGetValue(dataIdentifier, out data))
                 {
-                    return (false);
+                    return (Object.Equals(data, search));
                 }
             }
             else
             {
                 data = default(V);
             }
-            return (Object.Equals(data, search));
+            return (false);
         }
 
         public bool                         HasTileData(Vector2Int tileFrom, Vector2Int tileTo, Match match = Match.Any)
@@ -394,6 +409,11 @@ namespace uStableObject.Utilities
                 {
                     this._data.Add(dataIdentifier, val);
                 }
+            }
+
+            internal void                   UnsetValue<V>(IDataIdentifier dataIdentifier)
+            {
+                this._data.Remove(dataIdentifier);
             }
 
             internal bool                   HasValue(IDataIdentifier dataIdentifier)

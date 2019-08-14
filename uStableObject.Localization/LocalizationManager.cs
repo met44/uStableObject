@@ -430,7 +430,7 @@ namespace                                       uStableObject.Data.Localization
         {
             LocalizationManager locMan = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
             while (locMan.LocalizationVars.Remove(null)) { }
-            LocalizationVar loc = locMan.LocalizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/ l.name == name);
+            LocalizationVar loc = locMan.LocalizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/l &&  l.name == name);
 
             if (loc != null)
             {

@@ -40,11 +40,21 @@ namespace                       uStableObject.Data.Localization
                 property.objectReferenceValue = EditorGUI.ObjectField(assetRect, GUIContent.none, property.objectReferenceValue, typeof(LocalizationVar), false);
                 if (GUI.Button(addButtonRect, "+"))
                 {
-                    var hostObjectTypeName = property.serializedObject.targetObject.GetType().Name;
-                    string locName = "Localization - " + hostObjectTypeName + " - " + property.displayName;
-                    string locHint = hostObjectTypeName + " " + property.displayName;
-                    string locOriginal = property.displayName;
-                    property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
+                    foreach (var targetObject in property.serializedObject.targetObjects)
+                    {
+                        if (targetObject is LabelLocalization)
+                        {
+                            (targetObject as LabelLocalization).CreateLocAsset();
+                        }
+                        else
+                        {
+                            var hostObjectTypeName = targetObject.GetType().Name;
+                            string locName = "Localization - " + hostObjectTypeName + " - " + property.displayName;
+                            string locHint = hostObjectTypeName + " " + property.displayName;
+                            string locOriginal = property.displayName;
+                            property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
+                        }
+                    }
                 }
             }
 

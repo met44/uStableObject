@@ -460,6 +460,7 @@ namespace                                       uStableObject.Data.Localization
                 locMan._localizationVars.Add(loc);
                 Debug.Log("Created LocVar: " + loc.name);
                 LocalizationManager.BumpVersion();
+                UnityEditor.EditorUtility.SetDirty(loc);
             }
             UnityEditor.EditorUtility.SetDirty(locMan);
             return (loc);

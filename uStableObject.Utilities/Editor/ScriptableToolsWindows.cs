@@ -37,9 +37,10 @@ namespace                               uStableObject.Utilities.Editor
             this._parent = (ScriptableObject)EditorGUILayout.ObjectField("Parent", this._parent, typeof(ScriptableObject), false);
             this._child = (ScriptableObject)EditorGUILayout.ObjectField("Child", this._child, typeof(ScriptableObject), false);
 
+            GUILayout.Space(10);
             if (!this._parent || !this._child)
             {
-                GUILayout.Toggle(true, "Merge", "Button");
+                GUILayout.Toggle(true, "Select merge targets", "Button");
             }
             else if (GUILayout.Button("Merge") )
             {
@@ -65,21 +66,43 @@ namespace                               uStableObject.Utilities.Editor
             GUILayout.EndHorizontal();
             this._splitTarget = (ScriptableObject)EditorGUILayout.ObjectField("Target (child)", this._splitTarget, typeof(ScriptableObject), false);
 
+            GUILayout.Space(10);
             if (!this._splitTarget)
             {
-                GUILayout.Toggle(true, "Split", "Button");
+                GUILayout.Toggle(true, "Select split target", "Button");
             }
-            else if (GUILayout.Button("Split"))
+            else
             {
-                string sourcePath = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(this._splitTarget));
-                string filePath = System.IO.Path.Combine(sourcePath, this._splitTarget.name);
-                string newPath = AssetDatabase.GenerateUniqueAssetPath(filePath + ".asset");
-                AssetDatabase.RemoveObjectFromAsset(this._splitTarget);
-                AssetDatabase.CreateAsset(this._splitTarget, newPath);
-                EditorUtility.SetDirty(this._splitTarget);
-                AssetDatabase.SaveAssets();
-                Selection.activeObject = this._splitTarget;
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Split"))
+                {
+                    this.SplitAssets(false);
+                }
+                if (GUILayout.Button("Split & Prepare Merge"))
+                {
+                    this.SplitAssets(true);
+                }
+                GUILayout.EndHorizontal();
             }
+        }
+
+        void                            SplitAssets(bool prepareForMergeBack)
+        {
+            string assetPath = AssetDatabase.GetAssetPath(this._splitTarget);
+            if (prepareForMergeBack)
+            {
+                var mainAsset = AssetDatabase.LoadMainAssetAtPath(assetPath) as ScriptableObject;
+                this._parent = mainAsset;
+                this._child = this._splitTarget;
+            }
+            string directory = System.IO.Path.GetDirectoryName(assetPath);
+            string filePath = System.IO.Path.Combine(directory, this._splitTarget.name);
+            string newPath = AssetDatabase.GenerateUniqueAssetPath(filePath + ".asset");
+            AssetDatabase.RemoveObjectFromAsset(this._splitTarget);
+            AssetDatabase.CreateAsset(this._splitTarget, newPath);
+            EditorUtility.SetDirty(this._splitTarget);
+            AssetDatabase.SaveAssets();
+            Selection.activeObject = this._splitTarget;
         }
     }
 }

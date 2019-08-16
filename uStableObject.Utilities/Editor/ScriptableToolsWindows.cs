@@ -25,11 +25,23 @@ namespace                               uStableObject.Utilities.Editor
 
         void                            OnGUI()
         {
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Merging", EditorStyles.boldLabel);
+            if (GUILayout.Button("clear"))
+            {
+                this._parent = null;
+                this._child = null;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             this._parent = (ScriptableObject)EditorGUILayout.ObjectField("Parent", this._parent, typeof(ScriptableObject), false);
             this._child = (ScriptableObject)EditorGUILayout.ObjectField("Child", this._child, typeof(ScriptableObject), false);
 
-            if (GUILayout.Button("Merge"))
+            if (!this._parent || !this._child)
+            {
+                GUILayout.Toggle(true, "Merge", "Button");
+            }
+            else if (GUILayout.Button("Merge") )
             {
                 //var childClone = Instantiate(this._child);
                 //childClone.name = childClone.name.Replace("(Clone)", "");
@@ -43,10 +55,21 @@ namespace                               uStableObject.Utilities.Editor
                 Selection.activeObject = this._child;
             }
             GUILayout.Space(30);
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Splitting", EditorStyles.boldLabel);
+            if (GUILayout.Button("clear"))
+            {
+                this._splitTarget = null;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             this._splitTarget = (ScriptableObject)EditorGUILayout.ObjectField("Target (child)", this._splitTarget, typeof(ScriptableObject), false);
 
-            if (GUILayout.Button("Split"))
+            if (!this._splitTarget)
+            {
+                GUILayout.Toggle(true, "Split", "Button");
+            }
+            else if (GUILayout.Button("Split"))
             {
                 string sourcePath = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(this._splitTarget));
                 string filePath = System.IO.Path.Combine(sourcePath, this._splitTarget.name);

@@ -16,14 +16,14 @@ namespace                               uStableObject.Utilities
         }
 
         //[ContextMenu("Add Event Listener Child")]
-        public static T                 AddAsChild<T>(string name) where T : ScriptableObject
+        public static T                 AddAsChild<T>(string name, Object parent = null) where T : ScriptableObject
         {
             T                           child = default(T);
 #if UNITY_EDITOR
 
             if (UnityEditor.Selection.activeObject is ScriptableObject)
             {
-                var data = UnityEditor.Selection.activeObject;
+                var data = parent ?? UnityEditor.Selection.activeObject;
                 child = ScriptableObject.CreateInstance<T>();
                 child.name = name;
                 UnityEditor.AssetDatabase.AddObjectToAsset(child, data);

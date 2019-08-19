@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace uStableObject.Data
+namespace                       uStableObject.Data
 {
-    public interface IEntityList
+    public interface            IEntityList
     {
-        IEnumerable<IEntity> Entities { get; }
+        IEnumerable<IEntity>    Entities { get; }
     }
 }

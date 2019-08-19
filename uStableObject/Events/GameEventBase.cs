@@ -13,6 +13,8 @@ namespace                       uStableObject
         bool                    _running;
         bool                    _changed;
 
+        public int              ListenersCount { get => _listenersTemp.Count; }
+
         public void             Raise(T param)
         {
             if (!this._running)
@@ -63,13 +65,13 @@ namespace                       uStableObject
             }
         }
 
-        internal void           Register(IGameEventListenerBase<T> gameEventListener)
+        public virtual void     Register(IGameEventListenerBase<T> gameEventListener)
         {
             this._changed = true;
             this._listeners.Add(gameEventListener);
         }
 
-        internal void           Unregister(IGameEventListenerBase<T> gameEventListener)
+        public virtual void     Unregister(IGameEventListenerBase<T> gameEventListener)
         {
             this._changed = true;
             this._listeners.Remove(gameEventListener);
@@ -83,6 +85,8 @@ namespace                       uStableObject
         List<IGameEventListenerBase2<T1, T2>> _listenersTemp = new List<IGameEventListenerBase2<T1, T2>>();
         bool                    _running;
         bool                    _changed;
+        
+        public int              ListenersCount { get => _listenersTemp.Count; }
 
         public void             Raise(T1 param1, T2 param2)
         {
@@ -134,13 +138,13 @@ namespace                       uStableObject
             }
         }
 
-        internal void           Register(IGameEventListenerBase2<T1, T2> gameEventListener)
+        public virtual void     Register(IGameEventListenerBase2<T1, T2> gameEventListener)
         {
             this._changed = true;
             this._listeners.Add(gameEventListener);
         }
 
-        internal void           Unregister(IGameEventListenerBase2<T1, T2> gameEventListener)
+        public virtual void     Unregister(IGameEventListenerBase2<T1, T2> gameEventListener)
         {
             this._changed = true;
             this._listeners.Remove(gameEventListener);

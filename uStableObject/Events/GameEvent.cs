@@ -71,13 +71,13 @@ namespace                           uStableObject
             }
         }
 
-        internal void               Register(IGameEventListener gameEventListener)
+        public virtual void         Register(IGameEventListener gameEventListener)
         {
             this._changed = true;
             this._listeners.Add(gameEventListener);
         }
 
-        internal void               Unregister(IGameEventListener gameEventListener)
+        public virtual void         Unregister(IGameEventListener gameEventListener)
         {
             this._changed = true;
             this._listeners.Remove(gameEventListener);

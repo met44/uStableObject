@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using uStableObject.Data;
 
 namespace                                       uStableObject
 {
     public abstract class                       SchedulerBase<T> : ScriptableObject
     {
         #region Input Data
+        [SerializeField] FloatVar               _durationScaler;
         #endregion
 
         #region Members
@@ -106,7 +108,7 @@ namespace                                       uStableObject
                 instance = AutoPool<ScheduledTask>.Create();
                 instance._identifier = identifier;
             }
-            instance._endTime = Time.realtimeSinceStartup + duration;
+            instance._endTime = this.CalcEndTime(duration);
             instance._onCompleted = onCompleted;
             instance._onCanceled = onCanceled;
             for (var i = 0; i < this._scheduledTasks.Count; ++i)
@@ -118,6 +120,13 @@ namespace                                       uStableObject
                 }
             }
             this._scheduledTasks.Add(instance);
+        }
+        #endregion
+
+        #region Helpers
+        protected virtual float             CalcEndTime(float duration)
+        {
+            return (Time.realtimeSinceStartup + duration * (this._durationScaler ? this._durationScaler : 1f));
         }
         #endregion
 

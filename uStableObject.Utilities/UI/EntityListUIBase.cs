@@ -27,7 +27,7 @@ namespace                                   uStableObject.UI
 
         #region Properties
         public T                            SelectedEntity { get; set; }
-        public IEntityList               ListVar { get; set; }
+        public IEntityList                  ListVar { get; set; }
         #endregion
 
         #region Unity

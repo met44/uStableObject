@@ -6,7 +6,7 @@ using uStableObject.Data;
 
 namespace                                   uStableObject
 {
-    public abstract class                   AssetGameEventListenerBase<T> : ScriptableObject, IGameEventListenerBase<T>
+    public abstract class                   AssetGameEventListenerBase<T> : ScriptableObject, IGameEventListener<T>
     {
         [SerializeField] protected BoolVar  _filter;
 
@@ -71,7 +71,7 @@ namespace                                   uStableObject
 #endif
     }
 
-    public abstract class                   AssetGameEventListenerBase<T1, T2> : ScriptableObject, IGameEventListenerBase2<T1, T2>
+    public abstract class                   AssetGameEventListenerBase<T1, T2> : ScriptableObject, IGameEventListener<T1, T2>
     {
         [SerializeField] BoolVar _filter;
 

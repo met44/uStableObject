@@ -8,17 +8,17 @@ using uStableObject.Utilities;
 namespace                               uStableObject.Data
 {
     [CreateAssetMenu(menuName = "uStableObject/Settings/System Int Var", order = 1)]
-    public class                        SystemIntVar : IntVar, IGameEventListenerBase<int>
+    public class                        SystemIntVar : IntVar, IGameEventListener<int>
     {
         [SerializeField] Modes          _mode;
 
         void                            OnEnable()
         {
             this.Register(this);
-            (this as IGameEventListenerBase<int>).OnEventRaised(this.Value);
+            (this as IGameEventListener<int>).OnEventRaised(this.Value);
         }
 
-        void IGameEventListenerBase<int>.OnEventRaised(int param)
+        void IGameEventListener<int>.OnEventRaised(int param)
         {
             switch (this._mode)
             {

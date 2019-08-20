@@ -7,7 +7,7 @@ using uStableObject.Data;
 namespace                               uStableObject.Data
 {
     [CreateAssetMenu(menuName = "uStableObject/Settings/System Bool Var", order = 1)]
-    public class                        SystemBoolVar : BoolVar, IGameEventListenerBase<bool>
+    public class                        SystemBoolVar : BoolVar, IGameEventListener<bool>
     {
         [SerializeField] Modes          _mode;
 
@@ -22,11 +22,11 @@ namespace                               uStableObject.Data
             }
             else
             {
-                (this as IGameEventListenerBase<bool>).OnEventRaised(this.Value);
+                (this as IGameEventListener<bool>).OnEventRaised(this.Value);
             }
         }
 
-        void IGameEventListenerBase<bool>.OnEventRaised(bool param)
+        void IGameEventListener<bool>.OnEventRaised(bool param)
         {
             switch (this._mode)
             {

@@ -7,7 +7,7 @@ using uStableObject.Data;
 namespace                               uStableObject.Data
 {
     [CreateAssetMenu(menuName = "uStableObject/Settings/System String Var", order = 1)]
-    public class                        SystemStringVar : StringVar, IGameEventListenerBase<string>
+    public class                        SystemStringVar : StringVar, IGameEventListener<string>
     {
         [SerializeField] Modes          _mode;
         
@@ -38,11 +38,11 @@ namespace                               uStableObject.Data
             }
             else
             {
-                (this as IGameEventListenerBase<string>).OnEventRaised(this.Value);
+                (this as IGameEventListener<string>).OnEventRaised(this.Value);
             }
         }
 
-        void IGameEventListenerBase<string>.OnEventRaised(string param)
+        void IGameEventListener<string>.OnEventRaised(string param)
         {
             switch (this._mode)
             {

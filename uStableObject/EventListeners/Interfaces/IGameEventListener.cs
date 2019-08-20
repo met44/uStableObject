@@ -1,7 +1,7 @@
-﻿namespace uStableObject
+﻿namespace               uStableObject
 {
-    public interface IGameEventListener
+    public interface    IGameEventListener
     {
-        void OnEventRaised();
+        void            OnEventRaised();
     }
 }

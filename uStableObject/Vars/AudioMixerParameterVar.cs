@@ -7,7 +7,7 @@ using uStableObject.Data;
 namespace                               uStableObject.Data
 {
     [CreateAssetMenu(menuName = "uStableObject/Settings/AudioMixer Parameter Var", order = 1)]
-    public class                        AudioMixerParameterVar : FloatVar, IGameEventListenerBase<float>
+    public class                        AudioMixerParameterVar : FloatVar, IGameEventListener<float>
     {
         [SerializeField] string         _parameter;
         [SerializeField] AudioMixer     _target;
@@ -20,10 +20,10 @@ namespace                               uStableObject.Data
         private void                    OnEnable()
         {
             this.Register(this);
-            (this as IGameEventListenerBase<float>).OnEventRaised(this.Value);
+            (this as IGameEventListener<float>).OnEventRaised(this.Value);
         }
 
-        void IGameEventListenerBase<float>.OnEventRaised(float param)
+        void IGameEventListener<float>.OnEventRaised(float param)
         {
             if (this._mode == Modes.Log)
             {

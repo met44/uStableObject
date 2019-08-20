@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace                   uStableObject.Data
 {
-    public class            GameEventListenerWrapper<T> : IGameEventListenerBase<T>, System.IDisposable
+    public class            GameEventListenerWrapper<T> : IGameEventListener<T>, System.IDisposable
     {
         System.Action<T>    _callback;
         GameEventBase<T>    _evnt;

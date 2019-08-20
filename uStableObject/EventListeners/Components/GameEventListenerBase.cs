@@ -6,7 +6,7 @@ using uStableObject.Data;
 
 namespace                       uStableObject
 {
-    public abstract class       GameEventListenerBase<T> : MonoBehaviour, IGameEventListenerBase<T>
+    public abstract class       GameEventListenerBase<T> : MonoBehaviour, IGameEventListener<T>
     {
         [SerializeField] protected BoolVar  _filter;
 
@@ -32,7 +32,7 @@ namespace                       uStableObject
         }
     }
 
-    public abstract class       GameEventListenerBase<T1, T2> : MonoBehaviour, IGameEventListenerBase2<T1, T2>
+    public abstract class       GameEventListenerBase<T1, T2> : MonoBehaviour, IGameEventListener<T1, T2>
     {
         [SerializeField] BoolVar _filter;
 

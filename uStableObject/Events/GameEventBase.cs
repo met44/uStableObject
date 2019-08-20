@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace                       uStableObject
+namespace                                   uStableObject
 {
-    public abstract class       GameEventBase<T> : ScriptableObject
+    public abstract class                   GameEventBase<T> : ScriptableObject
     {
-        [SerializeField] bool   _logListeners;
-        List<IGameEventListenerBase<T>> _listeners = new List<IGameEventListenerBase<T>>();
-        List<IGameEventListenerBase<T>> _listenersTemp = new List<IGameEventListenerBase<T>>();
-        bool                    _running;
-        bool                    _changed;
+        [SerializeField] bool               _logListeners;
+        List<IGameEventListener<T>>         _listeners = new List<IGameEventListener<T>>();
+        List<IGameEventListener<T>>         _listenersTemp = new List<IGameEventListener<T>>();
+        bool                                _running;
+        bool                                _changed;
 
-        public int              ListenersCount { get => _listenersTemp.Count; }
+        public int                          ListenersCount { get => _listenersTemp.Count; }
 
-        public void             Raise(T param)
+        public void                         Raise(T param)
         {
             if (!this._running)
             {
@@ -65,30 +65,30 @@ namespace                       uStableObject
             }
         }
 
-        public virtual void     Register(IGameEventListenerBase<T> gameEventListener)
+        public virtual void                 Register(IGameEventListener<T> gameEventListener)
         {
             this._changed = true;
             this._listeners.Add(gameEventListener);
         }
 
-        public virtual void     Unregister(IGameEventListenerBase<T> gameEventListener)
+        public virtual void                 Unregister(IGameEventListener<T> gameEventListener)
         {
             this._changed = true;
             this._listeners.Remove(gameEventListener);
         }
     }
 
-    public abstract class       GameEventBase<T1, T2> : ScriptableObject
+    public abstract class                   GameEventBase<T1, T2> : ScriptableObject
     {
-        [SerializeField] bool   _logListeners;
-        List<IGameEventListenerBase2<T1, T2>> _listeners = new List<IGameEventListenerBase2<T1, T2>>();
-        List<IGameEventListenerBase2<T1, T2>> _listenersTemp = new List<IGameEventListenerBase2<T1, T2>>();
-        bool                    _running;
-        bool                    _changed;
+        [SerializeField] bool               _logListeners;
+        List<IGameEventListener<T1, T2>>   _listeners = new List<IGameEventListener<T1, T2>>();
+        List<IGameEventListener<T1, T2>>   _listenersTemp = new List<IGameEventListener<T1, T2>>();
+        bool                                _running;
+        bool                                _changed;
         
-        public int              ListenersCount { get => _listenersTemp.Count; }
+        public int                          ListenersCount { get => _listenersTemp.Count; }
 
-        public void             Raise(T1 param1, T2 param2)
+        public void                         Raise(T1 param1, T2 param2)
         {
             if (!this._running)
             {
@@ -138,13 +138,13 @@ namespace                       uStableObject
             }
         }
 
-        public virtual void     Register(IGameEventListenerBase2<T1, T2> gameEventListener)
+        public virtual void                 Register(IGameEventListener<T1, T2> gameEventListener)
         {
             this._changed = true;
             this._listeners.Add(gameEventListener);
         }
 
-        public virtual void     Unregister(IGameEventListenerBase2<T1, T2> gameEventListener)
+        public virtual void                 Unregister(IGameEventListener<T1, T2> gameEventListener)
         {
             this._changed = true;
             this._listeners.Remove(gameEventListener);

@@ -81,8 +81,8 @@ namespace                                   uStableObject
     public abstract class                   GameEventBase<T1, T2> : ScriptableObject
     {
         [SerializeField] bool               _logListeners;
-        List<IGameEventListener<T1, T2>>   _listeners = new List<IGameEventListener<T1, T2>>();
-        List<IGameEventListener<T1, T2>>   _listenersTemp = new List<IGameEventListener<T1, T2>>();
+        List<IGameEventListener<T1, T2>>    _listeners = new List<IGameEventListener<T1, T2>>();
+        List<IGameEventListener<T1, T2>>    _listenersTemp = new List<IGameEventListener<T1, T2>>();
         bool                                _running;
         bool                                _changed;
         

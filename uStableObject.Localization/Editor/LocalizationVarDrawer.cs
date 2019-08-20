@@ -35,8 +35,9 @@ namespace                       uStableObject.Data.Localization
             }
             else
             {
-                var assetRect = new Rect(position.x, position.y, position.width - 35, position.height);
+                var assetRect = new Rect(position.x, position.y, position.width - 65, position.height);
                 var addButtonRect = new Rect(assetRect.xMax + 5, position.y, 30, position.height);
+                var stackAddButtonRect = new Rect(addButtonRect.xMax, position.y, 30, position.height);
                 property.objectReferenceValue = EditorGUI.ObjectField(assetRect, GUIContent.none, property.objectReferenceValue, typeof(LocalizationVar), false);
                 if (GUI.Button(addButtonRect, "+"))
                 {
@@ -48,11 +49,38 @@ namespace                       uStableObject.Data.Localization
                         }
                         else
                         {
-                            var hostObjectTypeName = targetObject.GetType().Name;
-                            string locName = "Localization - " + hostObjectTypeName + " - " + property.displayName;
-                            string locHint = hostObjectTypeName + " " + property.displayName;
+                            var hostObjectName = targetObject.name;
+                            string locName = "Localization - " + hostObjectName + " - " + property.displayName;
+                            string locHint = hostObjectName + " " + property.displayName;
                             string locOriginal = property.displayName;
                             property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
+                        }
+                    }
+                }
+                if (GUI.Button(stackAddButtonRect, "V"))
+                {
+                    foreach (var targetObject in property.serializedObject.targetObjects)
+                    {
+                        if (targetObject is LabelLocalization)
+                        {
+                            (targetObject as LabelLocalization).CreateLocAsset();
+                        }
+                        else
+                        {
+                            var hostObjectName = targetObject.name;
+                            string locName = "Localization - " + hostObjectName + " - " + property.displayName;
+                            string locHint = hostObjectName + " " + property.displayName;
+                            string locOriginal = property.displayName;
+                            property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
+                            if (targetObject is ScriptableObject)
+                            {
+                                string sourcePath = AssetDatabase.GetAssetPath(property.objectReferenceValue);
+                                AssetDatabase.RemoveObjectFromAsset(property.objectReferenceValue);
+                                AssetDatabase.DeleteAsset(sourcePath);
+                                AssetDatabase.AddObjectToAsset(property.objectReferenceValue, targetObject);
+                                EditorUtility.SetDirty(targetObject);
+                                AssetDatabase.SaveAssets();
+                            }
                         }
                     }
                 }

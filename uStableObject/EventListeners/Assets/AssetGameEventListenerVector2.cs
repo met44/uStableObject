@@ -29,9 +29,9 @@ namespace                                       uStableObject
         }
 
         [ContextMenu("Match event name")]
-        public override void                    MatchEventName()
+        public void                             MatchEventName()
         {
-            base.MatchEventName();
+            base.MatchPrefixAndEventName();
         }
 #endif
     }

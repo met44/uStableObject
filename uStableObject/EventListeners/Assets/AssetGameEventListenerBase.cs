@@ -48,9 +48,9 @@ namespace                                   uStableObject
             return (UnityEditor.Selection.activeObject is ScriptableObject);
         }
 
-        public virtual void                 MatchEventName()
+        public virtual void                 MatchPrefixAndEventName(string prefix = "EventListener")
         {
-            this.name = "EventListener" + this.Event.name.Substring(Mathf.Max(0, this.Event.name.IndexOf(" - ")));
+            this.name = prefix + this.Event.name.Substring(Mathf.Max(0, this.Event.name.IndexOf(" - ")));
             UnityEditor.EditorUtility.SetDirty(this);
             UnityEditor.AssetDatabase.SaveAssets();
         }

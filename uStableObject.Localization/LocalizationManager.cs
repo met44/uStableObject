@@ -426,11 +426,12 @@ namespace                                       uStableObject.Data.Localization
             }
         }
 
-        public static LocalizationVar           GetOrCreateLocAsset(string name, string hint, string originalText, bool forceCreate)
+        public static LocalizationVar           GetOrCreateLocAsset(string locName, string hint, string originalText, bool forceCreate)
         {
             LocalizationManager locMan = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
             while (locMan.LocalizationVars.Remove(null)) { }
-            LocalizationVar loc = locMan.LocalizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/l &&  l.name == name);
+            LocalizationVar loc = locMan.LocalizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/l &&  l.name == locName);
+            uint nextID = locMan._localizationVars.Max(lv => lv.Id) + 1;
 
             if (loc != null)
             {
@@ -438,9 +439,9 @@ namespace                                       uStableObject.Data.Localization
                     || loc.Original != originalText)
                 {
                     loc = null;
-                    name = UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/Data/Localization/" + name + ".asset");
-                    name = name.Substring(name.LastIndexOf('/') + 1);
-                    name = name.Substring(0, name.Length - 6);
+                    locName = UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/Data/Localization/" + locName + ".asset");
+                    locName = locName.Substring(locName.LastIndexOf('/') + 1);
+                    locName = locName.Substring(0, locName.Length - 6);
                 }
                 else if (!loc.Hint.Contains(hint))
                 {
@@ -452,11 +453,11 @@ namespace                                       uStableObject.Data.Localization
             if (loc == null)
             {
                 loc = ScriptableObject.CreateInstance<LocalizationVar>();
-                loc.name = name;
-                loc.Id = locMan._localizationVars.Max(lv => lv.Id) + 1;
+                loc.name = locName;
+                loc.Id = nextID;
                 loc.Original = originalText;
                 loc.Hint = hint;
-                UnityEditor.AssetDatabase.CreateAsset(loc, "Assets/Data/Localization/" + loc.name + ".asset");
+                UnityEditor.AssetDatabase.CreateAsset(loc, "Assets/Data/Localization/" + locName + ".asset");
                 locMan._localizationVars.Add(loc);
                 Debug.Log("Created LocVar: " + loc.name);
                 LocalizationManager.BumpVersion();

@@ -21,6 +21,7 @@ namespace                       uStableObject.Data.Localization
 
             if (property.objectReferenceValue)
             {
+                var prettyPrint = this.GetPrettyPrintPropertyPath(property);
                 // Calculate rects
                 var textRect = new Rect(position.x, position.y, position.width - 40, position.height);
                 var assetRect = new Rect(textRect.xMax + 2, position.y, 35, position.height);
@@ -50,8 +51,9 @@ namespace                       uStableObject.Data.Localization
                         else
                         {
                             var hostObjectName = targetObject.name;
-                            string locName = "Localization - " + hostObjectName + " - " + property.displayName;
-                            string locHint = hostObjectName + " " + property.displayName;
+                            var prettyPrint = this.GetPrettyPrintPropertyPath(property);
+                            string locName = "Localization - " + hostObjectName + " - " + prettyPrint;
+                            string locHint = hostObjectName + " " + prettyPrint;
                             string locOriginal = property.displayName;
                             property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
                         }
@@ -68,8 +70,9 @@ namespace                       uStableObject.Data.Localization
                         else
                         {
                             var hostObjectName = targetObject.name;
-                            string locName = "Localization - " + hostObjectName + " - " + property.displayName;
-                            string locHint = hostObjectName + " " + property.displayName;
+                            var prettyPrint = this.GetPrettyPrintPropertyPath(property);
+                            string locName = "Localization - " + hostObjectName + " - " + prettyPrint;
+                            string locHint = hostObjectName + " " + prettyPrint;
                             string locOriginal = property.displayName;
                             property.objectReferenceValue = LocalizationManager.GetOrCreateLocAsset(locName, locHint, locOriginal, true);
                             if (targetObject is ScriptableObject)
@@ -90,6 +93,26 @@ namespace                       uStableObject.Data.Localization
             EditorGUI.indentLevel = indent;
 
             EditorGUI.EndProperty();
+        }
+
+        string                  GetPrettyPrintPropertyPath(SerializedProperty property)
+        {
+            int parentPropertyNameIndex = property.propertyPath.LastIndexOf(".");
+            if (parentPropertyNameIndex != -1)
+            {
+                string parentPath = property.propertyPath.Substring(0, parentPropertyNameIndex);
+                var parentProperty = property.serializedObject.FindProperty(parentPath);
+                /*if (parentProperty.displayName != "Array" && !parentProperty.displayName.StartsWith("_data"))
+                {
+                    return (this.GetPrettyPrintPropertyPath(parentProperty) + parentProperty.displayName + property.displayName);
+                }*/
+                if (property.displayName != "Array" && !property.displayName.StartsWith("_data"))
+                {
+                    return (this.GetPrettyPrintPropertyPath(parentProperty) + " - " + property.displayName);
+                }
+                return (this.GetPrettyPrintPropertyPath(parentProperty));
+            }
+            return (property.displayName);
         }
     }
 }

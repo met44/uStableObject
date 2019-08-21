@@ -18,6 +18,10 @@ namespace                           uStableObject
         bool                        _running;
         bool                        _changed;
         #endregion
+
+        #region Properties
+        public int                  ListenersCount { get => _listeners.Count; }
+        #endregion
         
         #region Triggers
         [ContextMenu("Raise event")]

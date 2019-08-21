@@ -13,7 +13,7 @@ namespace                                   uStableObject
         bool                                _running;
         bool                                _changed;
 
-        public int                          ListenersCount { get => _listenersTemp.Count; }
+        public int                          ListenersCount { get => _listeners.Count; }
 
         public void                         Raise(T param)
         {
@@ -86,7 +86,7 @@ namespace                                   uStableObject
         bool                                _running;
         bool                                _changed;
         
-        public int                          ListenersCount { get => _listenersTemp.Count; }
+        public int                          ListenersCount { get => _listeners.Count; }
 
         public void                         Raise(T1 param1, T2 param2)
         {

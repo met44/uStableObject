@@ -5,7 +5,7 @@ using UnityEngine;
 namespace                                       uStableObject.Data
 {
     [CreateAssetMenu(menuName = "uStableObject/Var/Entity List", order = 2)]
-    public abstract class                       EntityListVar : GameEventData, IEntityList
+    public abstract class                       EntityListVar : ScriptableObject, IEntityList
     {
         public abstract IEnumerable<IEntity>    Entities { get; }
     }

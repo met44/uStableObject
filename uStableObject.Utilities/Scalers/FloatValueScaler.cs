@@ -6,22 +6,22 @@ using uStableObject.Utilities;
 
 namespace                                       uStableObject.Utilities.Scalers
 {
-    public class                                IntValueScaler : MonoBehaviour
+    public class                                FloatValueScaler : MonoBehaviour
     {
         #region Input Data
-        [SerializeField] UnityEventTypes.Int    _ouputValue;
+        [SerializeField] UnityEventTypes.Float  _ouputValue;
         [SerializeField] float                  _scale;
         #endregion
 
         #region Triggers
         public void                             ScaleValue(int val)
         {
-            this._ouputValue.Invoke(Mathf.RoundToInt(val * this._scale));
+            this._ouputValue.Invoke(val * this._scale);
         }
 
         public void                             ScaleValue(float val)
         {
-            this._ouputValue.Invoke(Mathf.RoundToInt(val * this._scale));
+            this._ouputValue.Invoke(val * this._scale);
         }
         #endregion
     }

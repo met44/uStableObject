@@ -53,6 +53,11 @@ namespace uStableObject.Data
             this.Value -= otherVar;
         }
 
+        public void                         Copy(FloatVar otherVar)
+        {
+            this.Value = otherVar;
+        }
+
         public static implicit operator     float(FloatVar var)
         {
             return (var.Value);

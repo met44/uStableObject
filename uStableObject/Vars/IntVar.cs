@@ -73,6 +73,11 @@ namespace uStableObject.Data
             this.Value -= otherVar;
         }
 
+        public void                         Copy(IntVar otherVar)
+        {
+            this.Value = otherVar;
+        }
+
         public static implicit operator     int(IntVar var)
         {
             return (var.Value);

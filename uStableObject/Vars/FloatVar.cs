@@ -33,6 +33,26 @@ namespace uStableObject.Data
             return (this._runtimeValue != this._value);
         }
 
+        public void                         Add(float val)
+        {
+            this.Value += val;
+        }
+
+        public void                         Substract(float val)
+        {
+            this.Value -= val;
+        }
+
+        public void                         Add(FloatVar otherVar)
+        {
+            this.Value += otherVar;
+        }
+
+        public void                         Substract(FloatVar otherVar)
+        {
+            this.Value -= otherVar;
+        }
+
         public static implicit operator     float(FloatVar var)
         {
             return (var.Value);

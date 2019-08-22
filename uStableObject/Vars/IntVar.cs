@@ -53,6 +53,26 @@ namespace uStableObject.Data
             }
         }
 
+        public void                         Add(int val)
+        {
+            this.Value += val;
+        }
+
+        public void                         Substract(int val)
+        {
+            this.Value -= val;
+        }
+
+        public void                         Add(IntVar otherVar)
+        {
+            this.Value += otherVar;
+        }
+
+        public void                         Substract(IntVar otherVar)
+        {
+            this.Value -= otherVar;
+        }
+
         public static implicit operator     int(IntVar var)
         {
             return (var.Value);

@@ -43,6 +43,10 @@ namespace                                   uStableObject.UI
             int                             i = 0;
 
             this.OnBeforeRefresh();
+            if (this.ListVar == null)
+            {
+                this.ListVar = this._list;
+            }
             if (this._autoSelectIfNoPreselected)
             {
                 bool                        selectedIsInList = false;

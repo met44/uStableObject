@@ -40,6 +40,22 @@ namespace uStableObject.Data
             }
         }
 
+        public virtual int                  MinValue
+        {
+            get
+            {
+                return (this._minValue);
+            }
+        }
+
+        public virtual int                  MaxValue
+        {
+            get
+            {
+                return (this._maxValue);
+            }
+        }
+
         public bool                         HasRuntimeValue()
         {
             return (this._runtimeValue != this._value);

@@ -86,12 +86,10 @@ namespace uStableObject.Data
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }
         void ISerializationCallbackReceiver.OnAfterDeserialize() { this._runtimeValue = this._value; }
 
-#if UNITY_EDITOR
         [ContextMenu("Raise event")]
         public void                         RaiseEvent()
         {
             this.Raise(this.Value);
         }
-#endif
     }
 }

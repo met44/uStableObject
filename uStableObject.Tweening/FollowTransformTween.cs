@@ -57,6 +57,12 @@ namespace                               uStableObject.Tweening
             this._lastWorldPosition = this.transform.position + this._startOffset;
         }
 
+        public void                     GotoTargetWithOffset()
+        {
+            this._lastWorldPosition = this.transform.position + this._startOffset;
+            this.GotoTarget();
+        }
+
         public void                     GotoTarget()
         {
             this._tweenTargetWorldPositionFrom = this._lastWorldPosition;

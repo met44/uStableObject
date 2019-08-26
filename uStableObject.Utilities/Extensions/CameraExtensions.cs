@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using uStableObject.Data;
 
-namespace                       uStableObject
+namespace                       uStableObject.Utilities
 {
     public static class         CameraExtensions
     {

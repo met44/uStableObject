@@ -24,13 +24,38 @@ namespace                       uStableObject
             return (cam.ScreenToWorldPoint(localCanvasPos));
         }
 
-        public static Vector3   CanvasToCameraPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
+        public static Vector3   CanvasToCameraLocalPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
         {
-            Vector3 localCanvasPos = (canvas.transform as RectTransform).InverseTransformPoint(inCanvasWorldPos) + (canvas.transform as RectTransform).anchoredPosition3D;
-            Vector3 viewPortPos = new Vector3(localCanvasPos.x / Screen.width, localCanvasPos.y / Screen.height);
+            Vector3             viewPortPos;
+
+            if (Screen.width < Screen.height) //portrait
+            {
+                viewPortPos = new Vector3(inCanvasWorldPos.x / Screen.height, inCanvasWorldPos.y / Screen.width);
+            }
+            else //landscape
+            {
+                viewPortPos = new Vector3(inCanvasWorldPos.x / Screen.width, inCanvasWorldPos.y / Screen.height);
+            }
+            viewPortPos.z = depth;
             Vector3 cameraLocalPos = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(viewPortPos));
-            cameraLocalPos.z = depth;
             return (cameraLocalPos);
+        }
+
+        public static Vector3   CanvasToCameraWorldPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
+        {
+            Vector3             viewPortPos;
+
+            if (Screen.width < Screen.height) //portrait
+            {
+                viewPortPos = new Vector3(inCanvasWorldPos.x / Screen.height, inCanvasWorldPos.y / Screen.width);
+            }
+            else //landscape
+            {
+                viewPortPos = new Vector3(inCanvasWorldPos.x / Screen.width, inCanvasWorldPos.y / Screen.height);
+            }
+            viewPortPos.z = depth;
+            Vector3 worldPos = cam.ViewportToWorldPoint(viewPortPos);
+            return (worldPos);
         }
 
         public static Vector3   ScreenToCanvasPoint(this Camera cam, Canvas canvas, Vector3 screenPos)

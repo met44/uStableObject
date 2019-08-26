@@ -35,7 +35,7 @@ namespace                                   uStableObject.Utilities
                     case Positions.BottomRight:     localPos = new Vector3(this._target.Transform.rect.xMax,    this._target.Transform.rect.yMin,       this._target.Transform.localPosition.z); break;
                 }
                 Vector3 worldPos = this._target.Transform.TransformPoint(localPos);
-                Vector3 position = this._camera.Camera.CanvasToCameraPoint(this._canvas.Canvas, worldPos, this.transform.localPosition.z);
+                Vector3 position = this._camera.Camera.CanvasToCameraLocalPoint(this._canvas.Canvas, worldPos, this.transform.localPosition.z);
                 this.transform.localPosition = position;
             }
         }

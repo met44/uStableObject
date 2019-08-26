@@ -22,6 +22,7 @@ namespace                                       uStableObject.Data.Localization
         #endregion
 
         #region Members
+        List<LanguageData>                      _availableLanguages = new List<LanguageData>();
         List<string>                            _localizationDirs = new List<string>();
         LanguageData                            _currentLanguage;
         bool                                    _cancelGoogleTranslate;
@@ -73,8 +74,8 @@ namespace                                       uStableObject.Data.Localization
                 this.Raise(this._runtimeValue);
             }
         }
-        public List<LanguageData>               AvailableLanguages { get; private set; }
-        public List<LocalizationVar>            LocalizationVars { get { return (this._localizationVars); } }
+        public IReadOnlyList<LanguageData>      AvailableLanguages { get { return (this._availableLanguages); } }
+        public IReadOnlyList<LocalizationVar>   LocalizationVars { get { return (this._localizationVars); } }
         public int                              ExportedVersion { get { return (File.Exists(this.DefaultLanguageFilePath) ? PlayerPrefs.GetInt("LocalizationVersion", -1) : -1) ; } }
 #if UNITY_EDITOR
         public string                           DefaultLocPath { get { return ("./Assets/Data/Localization/Languages/"); } }
@@ -98,13 +99,13 @@ namespace                                       uStableObject.Data.Localization
             {
                 this.ExportDefaultLanguageTranslationData();
             }
-            this.AvailableLanguages = new List<LanguageData>();
+            this._availableLanguages = new List<LanguageData>();
             this.RefreshAvailableLanguages();
         }
 
         void                                    OnDisable()
         {
-            this.AvailableLanguages = new List<LanguageData>();
+            this._availableLanguages = new List<LanguageData>();
             this._localizationDirs = new List<string>();
             this._currentLanguage = null;
         }
@@ -135,7 +136,7 @@ namespace                                       uStableObject.Data.Localization
         [ContextMenu("Refresh Available Languages")]
         public void                             RefreshAvailableLanguages()
         {
-            this.AvailableLanguages.Clear();
+            this._availableLanguages.Clear();
             if (this._localizationDirs.Count == 0)
             {
                 this._localizationDirs.Add(this.DefaultLocPath);
@@ -174,7 +175,7 @@ namespace                                       uStableObject.Data.Localization
                                     _jsonPath = jsonPath,
                                     _flag = flagImage
                                 };
-                                this.AvailableLanguages.Add(language);
+                                this._availableLanguages.Add(language);
                                 if (this._currentLanguage == null && languageName == this.Value)
                                 {
                                     this.CurrentLanguage = language;
@@ -266,7 +267,7 @@ namespace                                       uStableObject.Data.Localization
                 {
                     try
                     {
-                        var lloc = this._localizationVars.Find(lv => lv.Id == entry.Id);
+                        var lloc = this._localizationVars.Find(lv => lv && lv.Id == entry.Id);
                         if (lloc != null/* && !string.IsNullOrEmpty(entry.LocalizedText)*/)
                         {
                             lloc.LocalizedText = entry.LocalizedText;
@@ -284,7 +285,7 @@ namespace                                       uStableObject.Data.Localization
                     {
                         try
                         {
-                            if (!data.Entries.Any(e => e.Id == lloc.Id))
+                            if (lloc && !data.Entries.Any(e => e.Id == lloc.Id))
                             {
                                 lloc.LocalizedText = null;
                             }
@@ -337,7 +338,7 @@ namespace                                       uStableObject.Data.Localization
                 GameVersion = this._gameVersion.Value,
                 LocalizationVersion = this._version,
                 Language = this._defaultLanguage.ToString(),
-                Entries = this._localizationVars.Select(loc => new LocExportData.Entry { Id = loc.Id, Hint = loc.Hint, Original = loc.Original, LocalizedText = null }).ToList()
+                Entries = this._localizationVars.Where(loc => loc != null).Select(loc => new LocExportData.Entry { Id = loc.Id, Hint = loc.Hint, Original = loc.Original, LocalizedText = null }).ToList()
             });
         }
 
@@ -348,7 +349,7 @@ namespace                                       uStableObject.Data.Localization
                 GameVersion = this._gameVersion.Value,
                 LocalizationVersion = this._version,
                 Language = this.Value,
-                Entries = this._localizationVars.Select(loc => new LocExportData.Entry { Id = loc.Id, Hint = loc.Hint, Original = loc.Original, LocalizedText = loc.LocalizedTextRaw }).ToList()
+                Entries = this._localizationVars.Where(loc => loc != null).Select(loc => new LocExportData.Entry { Id = loc.Id, Hint = loc.Hint, Original = loc.Original, LocalizedText = loc.LocalizedTextRaw }).ToList()
             });
         }
 
@@ -429,8 +430,8 @@ namespace                                       uStableObject.Data.Localization
         public static LocalizationVar           GetOrCreateLocAsset(string locName, string hint, string originalText, bool forceCreate)
         {
             LocalizationManager locMan = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
-            while (locMan.LocalizationVars.Remove(null)) { }
-            LocalizationVar loc = locMan.LocalizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/l &&  l.name == locName);
+            while (locMan._localizationVars.Remove(null)) { }
+            LocalizationVar loc = locMan._localizationVars.Find(l => /*l.Hint == hint && l.Original == originalText &&*/l &&  l.name == locName);
             uint nextID = locMan._localizationVars.Max(lv => lv.Id) + 1;
 
             if (loc != null)

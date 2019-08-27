@@ -28,6 +28,10 @@ namespace                                       uStableObject.Data.Localization
         bool                                    _cancelGoogleTranslate;
         #endregion
 
+        #region Statics
+        public static LocalizationManager       Instance { get; private set; }
+        #endregion
+
         #region Properties
         public override string                  Value //current language
         {
@@ -88,8 +92,10 @@ namespace                                       uStableObject.Data.Localization
         #endregion
 
         #region Unity
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         void                                    OnEnable()
         {
+            Instance = this;
             this._currentLanguage = null;
             if (!this._localizationDirs.Contains(this.DefaultLocPath))
             {
@@ -415,18 +421,22 @@ namespace                                       uStableObject.Data.Localization
             return (translation);
         }
         #endregion
-
-#if UNITY_EDITOR
-        [ContextMenu("Fix ids")]
-        public void                             FixIds()
+        
+        public void                             EnsureLocVarIntegration(LocalizationVar loc)
         {
-            for (var i = 0; i < this._localizationVars.Count; ++i)
+            if (!this._localizationVars.Contains(loc))
             {
-                this._localizationVars[i].Id = (uint)i + 1;
-                UnityEditor.EditorUtility.SetDirty(this._localizationVars[i]);
+                this._localizationVars.Add(loc);
+#if UNITY_EDITOR
+                Debug.Log("Added LocVar: " + loc.name);
+                this.BumpVersion();
+                UnityEditor.EditorUtility.SetDirty(loc);
+#endif
+                //TODO add runtime integration support
             }
         }
 
+#if UNITY_EDITOR
         public static LocalizationVar           GetOrCreateLocAsset(string locName, string hint, string originalText, bool forceCreate)
         {
             LocalizationManager locMan = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
@@ -447,7 +457,7 @@ namespace                                       uStableObject.Data.Localization
                 else if (!loc.Hint.Contains(hint))
                 {
                     loc.Hint += "; "  + hint;
-                    LocalizationManager.BumpVersion();
+                    locMan.BumpVersion();
                 }
             }
 
@@ -461,15 +471,25 @@ namespace                                       uStableObject.Data.Localization
                 UnityEditor.AssetDatabase.CreateAsset(loc, "Assets/Data/Localization/" + locName + ".asset");
                 locMan._localizationVars.Add(loc);
                 Debug.Log("Created LocVar: " + loc.name);
-                LocalizationManager.BumpVersion();
+                locMan.BumpVersion();
                 UnityEditor.EditorUtility.SetDirty(loc);
             }
             UnityEditor.EditorUtility.SetDirty(locMan);
             return (loc);
         }
 
+        [ContextMenu("Fix ids")]
+        public void                             FixIds()
+        {
+            for (var i = 0; i < this._localizationVars.Count; ++i)
+            {
+                this._localizationVars[i].Id = (uint)i + 1;
+                UnityEditor.EditorUtility.SetDirty(this._localizationVars[i]);
+            }
+        }
+
         [ContextMenu("Bump version")]
-        public static void                      BumpVersion()
+        public void                             BumpVersion()
         {
             LocalizationManager locMan = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
             ++locMan._version;

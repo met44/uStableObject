@@ -29,6 +29,13 @@ namespace                               uStableObject.Data.Localization
         public string                   Original            { get { return (this._original); } set { this._original = value; } }
         #endregion
 
+        #region Triggers
+        public void                     EnsureIntegrationWithManager()
+        {
+            LocalizationManager.Instance.EnsureLocVarIntegration(this);
+        }
+        #endregion
+
 #if UNITY_EDITOR
         [ContextMenu("Select Using Labels In Scene")]
         public void                         SelectUsingLabelInScene()
@@ -73,7 +80,7 @@ namespace                               uStableObject.Data.Localization
             }
             if (changed)
             {
-                LocalizationManager.BumpVersion();
+                LocalizationManager.Instance.BumpVersion();
                 UnityEditor.EditorUtility.SetDirty(this);
             }
         }

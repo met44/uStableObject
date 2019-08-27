@@ -29,7 +29,24 @@ namespace                                       uStableObject.Data.Localization
         #endregion
 
         #region Statics
-        public static LocalizationManager       Instance { get; private set; }
+        static LocalizationManager              _Instance;
+        public static LocalizationManager       Instance
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (_Instance == null)
+                {
+                    _Instance = (LocalizationManager)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Data/Localization/_LocalizationManager.asset", typeof(LocalizationManager));
+                }
+#endif
+                return (_Instance);
+            }
+            private set
+            {
+                _Instance = value;
+            }
+        }
         #endregion
 
         #region Properties

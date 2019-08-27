@@ -18,6 +18,7 @@ namespace                                   uStableObject.Utilities
         protected Func<T, T, int>           _heuristic;
         protected T                         _to;
         protected int                       _ancestorsFactor;
+        protected List<T>                   _activePath;
         #endregion
 
         #region Properties
@@ -34,6 +35,7 @@ namespace                                   uStableObject.Utilities
 
         public IReadOnlyCollection<T>       GetPath(T from, T to, List<T> path = null)
         {
+            this._activePath = path ?? this._path;
             this._to = to;
             if (this._neighbours == null || this._heuristic == null)
             {
@@ -60,7 +62,7 @@ namespace                                   uStableObject.Utilities
                     }
                     else
                     {
-                        (path ?? this._path).Insert(0, from);
+                        this._activePath.Insert(0, from);
                     }
                     UnityEngine.Profiling.Profiler.EndSample();
                 }
@@ -69,7 +71,9 @@ namespace                                   uStableObject.Utilities
                     Debug.LogException(ex);
                 }
             }
-            return ((path ?? this._path));
+            var tempPath = this._activePath;
+            this._activePath = null;
+            return (tempPath);
         }
 
         //Clears internal data including path, pools reuasable bits
@@ -191,10 +195,10 @@ namespace                                   uStableObject.Utilities
         {
             while (!object.Equals(bestTile, from))
             {
-                this._path.Insert(0, bestTile);
+                this._activePath.Insert(0, bestTile);
                 bestTile = this._tilesData[bestTile]._prev;
             }
-            this._path.Insert(0, from);
+            this._activePath.Insert(0, from);
         }
 
         protected virtual int               CalculateAncestors(TileData prevTileData)

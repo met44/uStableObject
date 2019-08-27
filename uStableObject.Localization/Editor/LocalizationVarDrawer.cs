@@ -15,6 +15,14 @@ namespace                       uStableObject.Data.Localization
             // Draw label
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
+            if (property.serializedObject.isEditingMultipleObjects)
+            {
+                var textRect = new Rect(position.x, position.y, position.width - 40, position.height);
+                EditorGUI.LabelField(textRect, "No Multi Edit Support");
+                EditorGUI.EndProperty();
+                return;
+            }
+
             // Don't make child fields be indented
             var indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;

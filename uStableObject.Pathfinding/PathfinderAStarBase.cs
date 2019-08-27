@@ -32,7 +32,7 @@ namespace                                   uStableObject.Utilities
             this._ancestorsFactor = ancestorsFactor;
         }
 
-        public IReadOnlyCollection<T>       GetPath(T from, T to)
+        public IReadOnlyCollection<T>       GetPath(T from, T to, List<T> path = null)
         {
             this._to = to;
             if (this._neighbours == null || this._heuristic == null)
@@ -60,7 +60,7 @@ namespace                                   uStableObject.Utilities
                     }
                     else
                     {
-                        this._path.Insert(0, from);
+                        (path ?? this._path).Insert(0, from);
                     }
                     UnityEngine.Profiling.Profiler.EndSample();
                 }
@@ -69,7 +69,7 @@ namespace                                   uStableObject.Utilities
                     Debug.LogException(ex);
                 }
             }
-            return (this._path);
+            return ((path ?? this._path));
         }
 
         //Clears internal data including path, pools reuasable bits

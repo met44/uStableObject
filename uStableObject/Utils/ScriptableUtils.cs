@@ -42,6 +42,32 @@ namespace                               uStableObject.Utilities
             return (child);
         }
 
+        public static Object            AddAsChild(System.Type type, string name, Object parent = null, bool autoSelect = true)
+        {
+            Object                      child = null;
+#if UNITY_EDITOR
+
+            if (UnityEditor.Selection.activeObject is ScriptableObject)
+            {
+                var data = parent ?? UnityEditor.Selection.activeObject;
+                child = ScriptableObject.CreateInstance(type);
+                child.name = name;
+                UnityEditor.AssetDatabase.AddObjectToAsset(child, data);
+                UnityEditor.EditorUtility.SetDirty(data);
+                UnityEditor.AssetDatabase.SaveAssets();
+                if (autoSelect)
+                {
+                    UnityEditor.Selection.activeObject = child;
+                }
+                else
+                {
+                    UnityEditor.EditorGUIUtility.PingObject(child);
+                }
+            }
+#endif
+            return (child);
+        }
+
         //[ContextMenu("Add Event Listener Child")]
         public static T                 AddInSameFolder<T>(string name, Object parent = null, bool autoSelect = true) where T : ScriptableObject
         {

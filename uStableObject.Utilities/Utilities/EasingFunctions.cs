@@ -265,7 +265,7 @@ public class EasingFunction
     {
         end -= start;
         float d = 1f;
-        return end - EaseOutBounce(0, end, d - value) + start;
+        return end - EaseOutBounce(d - value, 0, end) + start;
     }
 
     public static float EaseOutBounce(float value, float start = 0, float end = 1)
@@ -298,7 +298,7 @@ public class EasingFunction
         end -= start;
         float d = 1f;
         if (value < d * 0.5f) return EaseInBounce(0, end, value * 2) * 0.5f + start;
-        else return EaseOutBounce(0, end, value * 2 - d) * 0.5f + end * 0.5f + start;
+        else return EaseOutBounce(value * 2 - d, 0, end) * 0.5f + end * 0.5f + start;
     }
 
     public static float EaseInBack(float value, float start = 0, float end = 1)
@@ -606,7 +606,7 @@ public class EasingFunction
         end -= start;
         float d = 1f;
 
-        return EaseOutBounceD(0, end, d - value);
+        return EaseOutBounceD(d - value, 0, end);
     }
 
     public static float EaseOutBounceD(float value, float start = 0, float end = 1)
@@ -646,7 +646,7 @@ public class EasingFunction
         }
         else
         {
-            return EaseOutBounceD(0, end, value * 2 - d) * 0.5f;
+            return EaseOutBounceD(value * 2 - d, 0, end) * 0.5f;
         }
     }
 

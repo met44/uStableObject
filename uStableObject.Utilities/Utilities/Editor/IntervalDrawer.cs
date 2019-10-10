@@ -6,6 +6,7 @@ using UnityEngine;
 namespace                       uStableObject.Utilities
 {
     [CustomPropertyDrawer(typeof(Interval))]
+    [CustomPropertyDrawer(typeof(IntervalF))]
     public class                IntervalDrawer : PropertyDrawer
     {
         public override float   GetPropertyHeight(SerializedProperty property, GUIContent label)

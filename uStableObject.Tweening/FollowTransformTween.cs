@@ -65,6 +65,11 @@ namespace                               uStableObject.Tweening
 
         public void                     GotoTarget()
         {
+            this.GotoTarget(Mathf.Lerp(this._tweenDurationMin, this._tweenDurationMAx, Random.value));
+        }
+
+        public void                     GotoTarget(float duration)
+        {
             this._tweenTargetWorldPositionFrom = this._lastWorldPosition;
             if (this._maxDistance > 0)
             {
@@ -76,7 +81,7 @@ namespace                               uStableObject.Tweening
             }
             this._lastWorldPosition = this._tweenTarget.position;
             this._followStartTime = Time.time;
-            this._duration = Mathf.Lerp(this._tweenDurationMin, this._tweenDurationMAx, Random.value);
+            this._duration = duration;
             this._tweening = true;
         }
         #endregion

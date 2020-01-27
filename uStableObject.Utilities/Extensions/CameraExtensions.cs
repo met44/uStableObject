@@ -24,6 +24,41 @@ namespace                       uStableObject.Utilities
             return (cam.ScreenToWorldPoint(localCanvasPos));
         }
 
+        public static Vector3   GetRectPointLocal(this RectTransform inCanvasRect, RectPositions position)
+        {
+            Vector3             localPos = Vector3.zero;
+
+            switch (position)
+            {
+                case RectPositions.TopLeft:         localPos = new Vector3(inCanvasRect.rect.xMin,      inCanvasRect.rect.yMax,       inCanvasRect.localPosition.z); break;
+                case RectPositions.TopCenter:       localPos = new Vector3(inCanvasRect.rect.center.x,  inCanvasRect.rect.yMax,       inCanvasRect.localPosition.z); break;
+                case RectPositions.TopRight:        localPos = new Vector3(inCanvasRect.rect.xMax,      inCanvasRect.rect.yMax,       inCanvasRect.localPosition.z); break;
+                case RectPositions.MiddleLeft:      localPos = new Vector3(inCanvasRect.rect.xMin,      inCanvasRect.rect.center.y,   inCanvasRect.localPosition.z); break;
+                case RectPositions.MiddleCenter:    localPos = new Vector3(inCanvasRect.rect.center.x,  inCanvasRect.rect.center.y,   inCanvasRect.localPosition.z); break;
+                case RectPositions.MiddleRight:     localPos = new Vector3(inCanvasRect.rect.xMax,      inCanvasRect.rect.center.y,   inCanvasRect.localPosition.z); break;
+                case RectPositions.BottomLeft:      localPos = new Vector3(inCanvasRect.rect.xMin,      inCanvasRect.rect.yMin,       inCanvasRect.localPosition.z); break;
+                case RectPositions.BottomCenter:    localPos = new Vector3(inCanvasRect.rect.center.x,  inCanvasRect.rect.yMin,       inCanvasRect.localPosition.z); break;
+                case RectPositions.BottomRight:     localPos = new Vector3(inCanvasRect.rect.xMax,      inCanvasRect.rect.yMin,       inCanvasRect.localPosition.z); break;
+            }
+            return (localPos);
+        }
+
+        public static Vector3   GetRectPointWorld(this RectTransform inCanvasRect, RectPositions position)
+        {
+            Vector3             localPos;
+
+            localPos = inCanvasRect.GetRectPointLocal(position);
+            Vector3 worldPos = inCanvasRect.TransformPoint(localPos);
+            return (worldPos);
+        }
+
+        public static Vector3   CanvasToCameraLocalPoint(this Camera cam, Canvas canvas, RectTransform inCanvasRect, RectPositions position, float depth)
+        {
+            Vector3 worldPos = inCanvasRect.GetRectPointWorld(position);
+            Vector3 output = cam.CanvasToCameraLocalPoint(canvas, worldPos, depth);
+            return (output);
+        }
+
         public static Vector3   CanvasToCameraLocalPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
         {
             Vector3             viewPortPos;
@@ -39,6 +74,13 @@ namespace                       uStableObject.Utilities
             viewPortPos.z = depth;
             Vector3 cameraLocalPos = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(viewPortPos));
             return (cameraLocalPos);
+        }
+
+        public static Vector3   CanvasToCameraWorldPoint(this Camera cam, Canvas canvas, RectTransform inCanvasRect, RectPositions position, float depth)
+        {
+            Vector3 worldPos = inCanvasRect.GetRectPointWorld(position);
+            Vector3 output = cam.CanvasToCameraWorldPoint(canvas, worldPos, depth);
+            return (output);
         }
 
         public static Vector3   CanvasToCameraWorldPoint(this Camera cam, Canvas canvas, Vector3 inCanvasWorldPos, float depth)
@@ -118,5 +160,18 @@ namespace                       uStableObject.Utilities
             }
         }
 #endif
+        
+    }
+    
+    public enum                         CoordsConversion
+    {
+        CanvasToCanvas = 0,
+        CanvasToCameraLocal = 10,
+        CanvasToCameraWorld = 20,
+    }
+
+    public enum                         RectPositions
+    {
+        TopLeft, TopCenter, TopRight, MiddleLeft, MiddleCenter, MiddleRight, BottomLeft, BottomCenter, BottomRight
     }
 }

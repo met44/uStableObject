@@ -123,6 +123,7 @@ namespace                               uStableObject.Utilities
             {
                 Instance._spawned.Remove(go);
                 storage.Store(go);
+                go.transform.SetParent(Instance.transform);
             }
             else
             {
@@ -161,20 +162,26 @@ namespace                               uStableObject.Utilities
             
             public T                    Get<T>() where T : Object
             {
-                if (this._pooled.Count > 0)
+                while (this._pooled.Count > 0)
                 {
                     var instance = this._pooled.Dequeue();
-                    return (instance.GetComponent<T>());
+                    if (instance != null)
+                    {
+                        return (instance.GetComponent<T>());
+                    }
                 }
                 return (null);
             }
             
             public GameObject           Get()
             {
-                if (this._pooled.Count > 0)
+                while (this._pooled.Count > 0)
                 {
                     var instance = this._pooled.Dequeue();
-                    return (instance);
+                    if (instance != null)
+                    {
+                        return (instance);
+                    }
                 }
                 return (null);
             }

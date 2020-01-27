@@ -120,6 +120,7 @@ namespace                                       uStableObject
                 }
             }
             this._scheduledTasks.Add(instance);
+            this.BeginUpdate();
         }
         #endregion
 

@@ -81,6 +81,7 @@ namespace                               uStableObject.Data
                         case Types.KeyDown: return (Input.GetKeyDown(this.KeyboardKey));
                         case Types.Key: return (Input.GetKey(this.KeyboardKey));
                         case Types.KeyUp: return (Input.GetKeyUp(this.KeyboardKey));
+                        case Types.KeyDownUp: return (Input.GetKeyDown(this.KeyboardKey) || Input.GetKeyUp(this.KeyboardKey));
                         case Types.Axis: return (this.AxisValue() != 0);
                     }
                 }
@@ -128,7 +129,7 @@ namespace                               uStableObject.Data
         #region Data Types
         public enum                     Types
         {
-            MouseDown, Mouse, MouseUp, KeyDown, Key, KeyUp, Axis
+            MouseDown, Mouse, MouseUp, KeyDown, Key, KeyUp, Axis, KeyDownUp
         }
 
         [System.Serializable]

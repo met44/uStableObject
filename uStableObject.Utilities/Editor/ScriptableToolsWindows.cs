@@ -23,9 +23,34 @@ namespace                               uStableObject.Utilities.Editor
             window.Show();
         }
 
+        public void                     OnEnable()
+        {
+            Selection.selectionChanged -= this.RefreshGui;
+            Selection.selectionChanged += this.RefreshGui;
+        }
+
+        public void                     OnDisable()
+        {
+            Selection.selectionChanged -= this.RefreshGui;
+        }
+
+        void                            RefreshGui()
+        {
+            this.Repaint();
+        }
+
         void                            OnGUI()
         {
             GUILayout.BeginHorizontal();
+            this.ShowMergeGUI();
+            GUILayout.Space(30);
+            this.ShowSplitGUI();
+            GUILayout.Space(30);
+            this.ShowRenameSelectedGUI();
+        }
+
+        void                            ShowMergeGUI()
+        {
             GUILayout.Label("Merging", EditorStyles.boldLabel);
             if (GUILayout.Button("clear"))
             {
@@ -42,7 +67,7 @@ namespace                               uStableObject.Utilities.Editor
             {
                 GUILayout.Toggle(true, "Select merge targets", "Button");
             }
-            else if (GUILayout.Button("Merge") )
+            else if (GUILayout.Button("Merge"))
             {
                 //var childClone = Instantiate(this._child);
                 //childClone.name = childClone.name.Replace("(Clone)", "");
@@ -55,7 +80,10 @@ namespace                               uStableObject.Utilities.Editor
                 AssetDatabase.SaveAssets();
                 Selection.activeObject = this._child;
             }
-            GUILayout.Space(30);
+        }
+
+        void                            ShowSplitGUI()
+        {
             GUILayout.BeginHorizontal();
             GUILayout.Label("Splitting", EditorStyles.boldLabel);
             if (GUILayout.Button("clear"))
@@ -83,6 +111,37 @@ namespace                               uStableObject.Utilities.Editor
                     this.SplitAssets(true);
                 }
                 GUILayout.EndHorizontal();
+            }
+        }
+
+        void                            ShowRenameSelectedGUI()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Rename Selected", EditorStyles.boldLabel);
+            if (GUILayout.Button("clear"))
+            {
+                Selection.activeObject = null;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            if (Selection.objects != null)
+            {
+                var maxWidth = GUILayout.MaxWidth(this.position.width < 300 ? 35 : this.position.width * 0.35f);
+                foreach (var obj in Selection.objects)
+                {
+                    if (obj is ScriptableObject)
+                    {
+                        GUILayout.BeginHorizontal();
+                        EditorGUILayout.ObjectField("", obj, typeof(ScriptableObject), false, maxWidth);
+                        string newName = GUILayout.TextField(obj.name);
+                        if (newName != obj.name)
+                        {
+                            obj.name = newName;
+                            EditorUtility.SetDirty(obj);
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                }
             }
         }
 

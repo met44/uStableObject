@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uStableObject.Data;
 using uStableObject.Utilities;
+using UnityEngine.UI;
 
 namespace                                   uStableObject.UI
 {
@@ -18,10 +19,13 @@ namespace                                   uStableObject.UI
         [SerializeField] R                  _entityRowPrefab;
         [SerializeField] int                _entitiesPerRow = 1;
         [SerializeField] bool               _autoSelectIfNoPreselected;
+        [SerializeField] bool               _centerRows;
         #endregion
 
         #region Members
-        int                                 _prevEntityCount;
+        float                               _rowWidth;
+        float                               _rowHeight;
+        int                                 _prevEntityCount = 1;
         List<R>                             _instances = new List<R>();
         #endregion
 
@@ -34,6 +38,8 @@ namespace                                   uStableObject.UI
         void                                Awake()
         {
             this.ListVar = this._list;
+            this._rowWidth = (this._entityRowPrefab.transform as RectTransform).rect.width;
+            this._rowHeight = (this._entityRowPrefab.transform as RectTransform).rect.height;
         }
         #endregion
 
@@ -45,7 +51,7 @@ namespace                                   uStableObject.UI
             this.OnBeforeRefresh();
             if (this.ListVar == null)
             {
-                this.ListVar = this._list;
+                this.Awake();
             }
             if (this._autoSelectIfNoPreselected)
             {
@@ -71,7 +77,6 @@ namespace                                   uStableObject.UI
                     }
                 }
             }
-
             foreach (var entity in this.ListVar.Entities)
             {
                 UnityEngine.Profiling.Profiler.BeginSample("RefreshEntities");
@@ -91,6 +96,18 @@ namespace                                   uStableObject.UI
             }
             if (this._prevEntityCount != this._instances.Count)
             {
+                if (this._centerRows)
+                {
+                    int diff = Mathf.Min(this._instances.Count - this._prevEntityCount, this._entitiesPerRow);
+                    float rowOffset =  diff / 2f * -this._rowWidth;
+                    for (var n = 0; n < this._instances.Count; ++n)
+                    {
+                        var instance = this._instances[n];
+                        var localPos = instance.transform.localPosition;
+                        localPos.x += rowOffset;
+                        instance.transform.localPosition = localPos;
+                    }
+                }
                 this._prevEntityCount = this._instances.Count;
                 this.ResizeScrollView();
             }
@@ -134,11 +151,9 @@ namespace                                   uStableObject.UI
 
             if (num >= this._instances.Count)
             {
-                float rowWidth = (this._entityRowPrefab.transform as RectTransform).rect.width;
-                float rowheight = (this._entityRowPrefab.transform as RectTransform).rect.height;
                 int col = num % this._entitiesPerRow;
                 int row = num / this._entitiesPerRow;
-                Vector3 localPos = new Vector3(col * rowWidth, (-row) * rowheight, 0);
+                Vector3 localPos = new Vector3(col * this._rowWidth, (-row) * this._rowHeight, 0);
                 rowInstance = GoPool.Spawn(this._entityRowPrefab, this._instancesRoot.TransformPoint(localPos), this._instancesRoot.rotation, this._instancesRoot);
                 rowInstance.transform.SetSiblingIndex(num);
                 this._instances.Add(rowInstance);
@@ -157,7 +172,7 @@ namespace                                   uStableObject.UI
         void                                ResizeScrollView()
         {
             float rowheight = (this._entityRowPrefab.transform as RectTransform).rect.height;
-            this._instancesRoot.sizeDelta = new Vector2(this._instancesRoot.sizeDelta.x, (this._instances.Count / this._entitiesPerRow) * rowheight);
+            this._instancesRoot.sizeDelta = new Vector2(this._instancesRoot.sizeDelta.x, Mathf.CeilToInt((float)this._instances.Count / this._entitiesPerRow) * rowheight);
         }
         #endregion
     }

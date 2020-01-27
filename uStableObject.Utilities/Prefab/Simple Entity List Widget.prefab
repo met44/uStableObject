@@ -56,6 +56,7 @@ MonoBehaviour:
     type: 3}
   _entitiesPerRow: 5
   _autoSelectIfNoPreselected: 0
+  _centerRows: 1
 --- !u!1 &4310539434055615260
 GameObject:
   m_ObjectHideFlags: 0

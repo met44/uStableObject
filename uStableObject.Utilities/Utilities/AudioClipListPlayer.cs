@@ -28,7 +28,15 @@ namespace                                   uStableObject.Utilities
         {
             if (this.gameObject.activeInHierarchy)
             {
-                var randClip = this._targetAudioClipList.AudioClipList.RandClip;
+                this.PlayRandom(this._targetAudioClipList);
+            }
+        }
+
+        public void                         PlayRandom(AudioClipListVar audioClipListVar)
+        {
+            if (this.gameObject.activeInHierarchy)
+            {
+                var randClip = audioClipListVar.AudioClipList.RandClip;
                 this._audioSource.clip = randClip;
                 this._audioSource.Play();
                 this._onClipBeganEvent.Invoke();

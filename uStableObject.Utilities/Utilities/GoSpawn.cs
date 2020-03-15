@@ -17,7 +17,10 @@ namespace                               uStableObject.Utilities
         #region Triggers
         public void                     SpawnNow()
         {
-            GoPool.Spawn(this._prefab, this.transform.position, this.transform.rotation, this._parent ? this._parent : this._parentVar.Transform);
+            if (this._prefab)
+            {
+                GoPool.Spawn(this._prefab, this.transform.position, this.transform.rotation, this._parent ? this._parent : this._parentVar?.Transform);
+            }
         }
         #endregion
     }

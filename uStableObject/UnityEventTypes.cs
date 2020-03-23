@@ -29,8 +29,16 @@ namespace                           uStableObject
         [System.Serializable]
         public class        V2Int : UnityEvent<UnityEngine.Vector2Int> { }
         [System.Serializable]
+        public class        V3 : UnityEvent<UnityEngine.Vector3> { }
+        [System.Serializable]
+        public class        V3Int : UnityEvent<UnityEngine.Vector3Int> { }
+        [System.Serializable]
         public class        Color : UnityEvent<UnityEngine.Color> { }
         [System.Serializable]
+        public class        Sprite : UnityEvent<UnityEngine.Sprite> { }
+        [System.Serializable]
         public class        Entity : UnityEvent<IEntity> { }
+        [System.Serializable]
+        public class        EntityList : UnityEvent<IEntityList> { }
     }
 }

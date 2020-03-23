@@ -36,5 +36,37 @@ namespace                           uStableObject.Utilities
             }
             return (val.ToString());
         }
+
+        public static string        ToStringNonAlloc(this uint val)
+        {
+            if (Mathf.Abs(val) <= 100)
+            {
+                if (val < 0)
+                {
+                    return (_intStringsNegative[-val]);
+                }
+                else
+                {
+                    return (_intStrings[val]);
+                }
+            }
+            return (val.ToString());
+        }
+
+        public static string        ToStringNonAlloc(this byte val)
+        {
+            if (Mathf.Abs(val) <= 100)
+            {
+                if (val < 0)
+                {
+                    return (_intStringsNegative[-val]);
+                }
+                else
+                {
+                    return (_intStrings[val]);
+                }
+            }
+            return (val.ToString());
+        }
     }
 }

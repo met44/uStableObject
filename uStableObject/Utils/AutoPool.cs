@@ -11,9 +11,14 @@ namespace                           uStableObject
         //static ConcurrentQueue<T>   Pool = new ConcurrentQueue<T>();
         static Queue<T>             Pool = new Queue<T>();
 
+        public static int           Count()
+        {
+            return (Pool.Count);
+        }
+
         public static T             Create()
         {
-            T                       instance = default;
+            T                       instance = default(T);
 
             lock (ThreadSafe)
             {
@@ -83,7 +88,7 @@ namespace                           uStableObject
 
         public static T             Spawn()
         {
-            T                       instance = default;
+            T                       instance = default(T);
 
             lock (ThreadSafe)
             {

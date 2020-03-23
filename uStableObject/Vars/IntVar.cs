@@ -40,6 +40,14 @@ namespace uStableObject.Data
             }
         }
 
+        public virtual int                  DefaultValue
+        {
+            get
+            {
+                return (this._value);
+            }
+        }
+
         public virtual int                  MinValue
         {
             get
@@ -96,7 +104,7 @@ namespace uStableObject.Data
 
         public static implicit operator     int(IntVar var)
         {
-            return (var.Value);
+            return (var ? var.Value : 0);
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }

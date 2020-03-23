@@ -12,6 +12,7 @@ namespace                                   uStableObject.Data
         [SerializeField] BoolVar            _fallbackMember;
 
         BoolVar                             _toggledOnMember;
+        BoolVar                             _prevToggledOnMember;
         bool                                _togglingGroup;
 
         public override bool                Value
@@ -79,6 +80,9 @@ namespace                                   uStableObject.Data
                 this._togglingGroup = true;
                 try
                 {
+                    this._prevToggledOnMember = this._toggledOnMember;
+
+                    //switch off previous
                     if (this._toggledOnMember != null)
                     {
                         if (this._toggledOnMember != this._fallbackMember || param)
@@ -110,6 +114,19 @@ namespace                                   uStableObject.Data
                     Debug.LogException(ex);
                 }
                 this._togglingGroup = false;
+            }
+        }
+
+        public void                         RollBackToPrevious()
+        {
+            //event chain will set things up properly
+            if (this._prevToggledOnMember != null)
+            {
+                this._prevToggledOnMember.Value = true; 
+            }
+            else if (this._toggledOnMember != null)
+            {
+                this._toggledOnMember.Value = false;
             }
         }
     }

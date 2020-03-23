@@ -33,6 +33,16 @@ namespace                                   uStableObject.Utilities
         #endregion
 
         #region Triggers
+        public void                         ClearAll()
+        {
+            foreach (var tileData in this._tiles.Values)
+            {
+                tileData.Clear(true);
+                AutoPool<TileData>.Dispose(tileData);
+            }
+            this._tiles.Clear();
+        }
+
         public void                         SetGridSize(Vector2Int gridSize)
         {
             this.GridSize = gridSize;
@@ -96,7 +106,15 @@ namespace                                   uStableObject.Utilities
 
             if (this._tiles.TryGetValue(tile, out tileData))
             {
-                tileData.UnsetValue<V>(dataIdentifier);
+                if (tileData.UnsetValue<V>(dataIdentifier))
+                {
+                    if (!tileData.HasValues())
+                    {
+                        this._tiles.Remove(tile);
+                        tileData.Clear(true);
+                        AutoPool<TileData>.Dispose(tileData);
+                    }
+                }
             }
         }
 
@@ -511,14 +529,19 @@ namespace                                   uStableObject.Utilities
                 }
             }
 
-            internal void                   UnsetValue<V>(IDataIdentifier dataIdentifier)
+            internal bool                   UnsetValue<V>(IDataIdentifier dataIdentifier)
             {
-                this._data.Remove(dataIdentifier);
+                return (this._data.Remove(dataIdentifier));
             }
 
             internal bool                   HasValue(IDataIdentifier dataIdentifier)
             {
                 return (this._data.ContainsKey(dataIdentifier));
+            }
+
+            internal bool                   HasValues()
+            {
+                return (this._data.Count > 0);
             }
 
             internal bool                   TryGetValue<V>(IDataIdentifier dataIdentifier, out V val)

@@ -18,6 +18,13 @@ namespace                       uStableObject.Utilities
         public int              Rand    { get { return (Random.Range(this._from, this._to)); } }
         #endregion
 
+        #region Helpers
+        public bool             Contains(int value)
+        {
+            return (value >= this.From && value <= this.To);
+        }
+        #endregion
+
         #region Constructors
         public                  Interval() { }
         public                  Interval(int from, int to) { this._from = from; this._to = to; }

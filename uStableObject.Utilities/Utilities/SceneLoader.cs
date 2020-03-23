@@ -167,7 +167,7 @@ namespace                                       uStableObject.Utilities
             if (arg0.name == this._loadedScene.name)
             {
                 this._state = States.Unloaded;
-                this._loadedScene = default;
+                this._loadedScene = default(Scene);
                 this._activeLoading = null;
                 SceneManager.sceneUnloaded -= OnSeneUnloaded;
                 this._onFinishedUnload.Invoke();

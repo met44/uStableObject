@@ -16,7 +16,7 @@ namespace                                       uStableObject.Utilities.Converte
         #region Properties
         bool                                    Invert          { get { return ((this._mode & Modes.Invert) != 0); } }
         bool                                    PassOnlyIfFalse { get { return ((this._mode & Modes.PassOnlyIfFalse) != 0); } }
-        bool                                    PassOnlyIfTrue  { get { return ((this._mode & Modes.PassOnlyIfFalse) != 0); } }
+        bool                                    PassOnlyIfTrue  { get { return ((this._mode & Modes.PassOnlyIfTrue) != 0); } }
         #endregion
 
         #region Triggers

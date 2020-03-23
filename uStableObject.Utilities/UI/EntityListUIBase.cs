@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace                                   uStableObject.UI
 {
-    public abstract class                   EntityListUIBase<T, R, E> : MonoBehaviour
+    public abstract class                   EntityListUIBase<T, R, E> : MonoBehaviour, IEntityListUI<T>
                                             where T : IEntity
                                             where E : UnityEvent<T>
                                             where R : EntityRowBase<T, E>
@@ -30,8 +30,9 @@ namespace                                   uStableObject.UI
         #endregion
 
         #region Properties
-        public T                            SelectedEntity { get; set; }
-        public IEntityList                  ListVar { get; set; }
+        public IReadOnlyList<R>             Instances       { get { return (this._instances); } }
+        public T                            SelectedEntity  { get; set; }
+        public IEntityList                  ListVar         { get; set; }
         #endregion
 
         #region Unity
@@ -53,35 +54,38 @@ namespace                                   uStableObject.UI
             {
                 this.Awake();
             }
-            if (this._autoSelectIfNoPreselected)
+            if (this.ListVar != null && this.ListVar.Entities != null)
             {
-                bool                        selectedIsInList = false;
-
-                if (this.SelectedEntity != null) //ensure entity is in list otherwise we must select another one
+                if (this._autoSelectIfNoPreselected)
                 {
-                    foreach (var entity in this.ListVar.Entities)
+                    bool                        selectedIsInList = false;
+
+                    if (this.SelectedEntity != null) //ensure entity is in list otherwise we must select another one
                     {
-                        if (Object.Equals(entity, this.SelectedEntity))
+                        foreach (var entity in this.ListVar.Entities)
                         {
-                            selectedIsInList = true;
+                            if (Object.Equals(entity, this.SelectedEntity))
+                            {
+                                selectedIsInList = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!selectedIsInList)
+                    {
+                        foreach (var entity in this.ListVar.Entities)
+                        {
+                            this.SelectedEntity = (T)entity;
                             break;
                         }
                     }
                 }
-                if (!selectedIsInList)
+                foreach (var entity in this.ListVar.Entities)
                 {
-                    foreach (var entity in this.ListVar.Entities)
-                    {
-                        this.SelectedEntity = (T)entity;
-                        break;
-                    }
+                    UnityEngine.Profiling.Profiler.BeginSample("RefreshEntities");
+                    i = this.InitEntityRow(i, (T)entity);
+                    UnityEngine.Profiling.Profiler.EndSample();
                 }
-            }
-            foreach (var entity in this.ListVar.Entities)
-            {
-                UnityEngine.Profiling.Profiler.BeginSample("RefreshEntities");
-                i = this.InitEntityRow(i, (T)entity);
-                UnityEngine.Profiling.Profiler.EndSample();
             }
             for (var n = this._instances.Count - 1; n >= i; --n)
             {
@@ -94,12 +98,11 @@ namespace                                   uStableObject.UI
                 this._instances.RemoveAt(n);
                 GoPool.Despawn(instance);
             }
-            if (this._prevEntityCount != this._instances.Count)
+            //if (this._prevEntityCount != this._instances.Count)
             {
-                if (this._centerRows)
+                if (this._centerRows && this._instances.Count > 1)
                 {
-                    int diff = Mathf.Min(this._instances.Count - this._prevEntityCount, this._entitiesPerRow);
-                    float rowOffset =  diff / 2f * -this._rowWidth;
+                    float rowOffset = (Mathf.Min(this._instances.Count, this._entitiesPerRow) - 1f) / 2f * -this._rowWidth;
                     for (var n = 0; n < this._instances.Count; ++n)
                     {
                         var instance = this._instances[n];
@@ -112,6 +115,14 @@ namespace                                   uStableObject.UI
                 this.ResizeScrollView();
             }
             this.OnAfterRefresh();
+        }
+
+        public void                         ClearSelectedEntity()
+        {
+            if (this.SelectedEntity != null)
+            {
+                this.SelectedEntity = default(T);
+            }
         }
 
         public void                         ApplySelectedEntity()
@@ -149,18 +160,20 @@ namespace                                   uStableObject.UI
         {
             R                               rowInstance;
 
+            int col = num % this._entitiesPerRow;
+            int row = num / this._entitiesPerRow;
+            Vector3 localPos = new Vector3(col * this._rowWidth, (-row) * this._rowHeight, 0);
             if (num >= this._instances.Count)
             {
-                int col = num % this._entitiesPerRow;
-                int row = num / this._entitiesPerRow;
-                Vector3 localPos = new Vector3(col * this._rowWidth, (-row) * this._rowHeight, 0);
                 rowInstance = GoPool.Spawn(this._entityRowPrefab, this._instancesRoot.TransformPoint(localPos), this._instancesRoot.rotation, this._instancesRoot);
                 rowInstance.transform.SetSiblingIndex(num);
+                rowInstance.List = this;
                 this._instances.Add(rowInstance);
             }
             else
             {
                 rowInstance = this._instances[num];
+                rowInstance.transform.localPosition = localPos;
                 if (!rowInstance.gameObject.activeSelf)
                 {
                     rowInstance.gameObject.SetActive(true);
@@ -171,8 +184,12 @@ namespace                                   uStableObject.UI
 
         void                                ResizeScrollView()
         {
+            int cols = Mathf.Min(this._instances.Count, this._entitiesPerRow);
+            int rows = Mathf.CeilToInt((float)this._instances.Count / this._entitiesPerRow);
+            float colWidth = (this._entityRowPrefab.transform as RectTransform).rect.width;
             float rowheight = (this._entityRowPrefab.transform as RectTransform).rect.height;
-            this._instancesRoot.sizeDelta = new Vector2(this._instancesRoot.sizeDelta.x, Mathf.CeilToInt((float)this._instances.Count / this._entitiesPerRow) * rowheight);
+            this._instancesRoot.sizeDelta = new Vector2(Mathf.CeilToInt((float)cols) * colWidth, 
+                                                        Mathf.CeilToInt((float)rows) * rowheight);
         }
         #endregion
     }

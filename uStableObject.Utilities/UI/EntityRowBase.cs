@@ -22,6 +22,7 @@ namespace                                   uStableObject.UI
         #endregion
 
         #region Properties
+        public IEntityListUI<T>             List { get; set; }
         public T                            Entity { get { return (this._entity); } }
         #endregion
 
@@ -33,16 +34,22 @@ namespace                                   uStableObject.UI
                 this._entity = entity;
                 this.InitIcon();
                 this.InitLabel();
+                this.InitCustom();
             }
+            this.RefreshCustom();
         }
 
-        public void                         PreSelected()
+        public virtual void                 PreSelected()
         {
             this._onPreSelected.Invoke(this._entity);
         }
 
-        public void                         OnClicked()
+        public virtual void                 OnClicked()
         {
+            if (this.List != null)
+            {
+                this.List.SelectedEntity = this._entity;
+            }
             this._onClicked.Invoke(this._entity);
         }
         #endregion
@@ -50,9 +57,9 @@ namespace                                   uStableObject.UI
         #region Helpers
         protected virtual void              InitIcon()
         {
-            if (this._icon != null)
+            foreach (var image in this._icon)
             {
-                foreach (var image in this._icon)
+                if (image != null)
                 {
                     image.sprite = this._entity.Icon;
                 }
@@ -65,6 +72,16 @@ namespace                                   uStableObject.UI
             {
                 this._label.text = this._entity.Name;
             }
+        }
+
+        //Called -only- when entity shown by the prefab changes
+        protected virtual void              InitCustom()
+        {
+        }
+
+        //Always called when list is refreshing
+        protected virtual void              RefreshCustom()
+        {
         }
         #endregion
     }

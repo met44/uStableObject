@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace                                   uStableObject
 {
-    public abstract class                   GameEventBase<T> : ScriptableObject
+    public abstract class                   GameEventBase<T> : ScriptableObject, IGameEvent
     {
         [SerializeField] bool               _logListeners;
         List<IGameEventListener<T>>         _listeners = new List<IGameEventListener<T>>();
@@ -39,7 +39,7 @@ namespace                                   uStableObject
                             {
                                 if (this._listenersTemp[i] is UnityEngine.Object)
                                 {
-                                    Debug.Log("[" + this.name + "][" + param + "] Event Listener: " + (this._listenersTemp[i] as UnityEngine.Object).name, this._listeners[i] as UnityEngine.Object);
+                                    Debug.Log("[" + this.name + "][" + param + "] Event Listener: " + (this._listenersTemp[i] as UnityEngine.Object).name, this._listenersTemp[i] as UnityEngine.Object);
                                 }
                                 else
                                 {
@@ -61,7 +61,7 @@ namespace                                   uStableObject
             }
             else
             {
-                Debug.LogError("Event Loop: " + this.name);
+                Debug.LogError("Event Loop: " + this.name + " [value=" + param + "]");
             }
         }
 
@@ -76,6 +76,27 @@ namespace                                   uStableObject
             this._changed = true;
             this._listeners.Remove(gameEventListener);
         }
+
+#if UNITY_EDITOR
+        void                                IGameEvent.ShowInspector()
+        {
+            UnityEditor.EditorGUILayout.Separator();
+            UnityEditor.EditorGUILayout.LabelField("Listeners: ");
+            for (var i = 0; i < this._listeners.Count; ++i)
+            {
+                var listener = this._listeners[i];
+                if (listener is Object)
+                {
+                    Object obj = listener as Object;
+                    UnityEditor.EditorGUILayout.ObjectField("[" + i + "] " + listener.GetType().Name, obj, obj.GetType(), false);
+                }
+                else
+                {
+                    UnityEditor.EditorGUILayout.LabelField("[" + i + "] " + listener.GetType().Name);
+                }
+            }
+        }
+#endif
     }
 
     public abstract class                   GameEventBase<T1, T2> : ScriptableObject
@@ -134,7 +155,7 @@ namespace                                   uStableObject
             }
             else
             {
-                Debug.LogError("Event Loop: " + this.name);
+                Debug.LogError("Event Loop: " + this.name + " [values=" + param1 + ", " + param2 + "]");
             }
         }
 

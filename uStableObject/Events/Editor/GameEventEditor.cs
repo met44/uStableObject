@@ -12,9 +12,37 @@ namespace                       uStableObject.EditorX
         {
             base.OnInspectorGUI();
 
-            GameEvent gEvent = this.target as GameEvent;
+            IGameEvent gEvent = this.target as IGameEvent;
             serializedObject.Update();
-            GameEvent.Editor.ShowInspector(gEvent);
+            gEvent.ShowInspector();
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+
+    [CustomEditor(typeof(GameEventBase<>), true)]
+    public class                GameEventBaseEditor : Editor
+    {
+        public override void    OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            IGameEvent gEvent = this.target as IGameEvent;
+            serializedObject.Update();
+            gEvent.ShowInspector();
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+
+    [CustomEditor(typeof(GameEventBase<,>), true)]
+    public class                GameEvent2BaseEditor : Editor
+    {
+        public override void    OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            IGameEvent gEvent = this.target as IGameEvent;
+            serializedObject.Update();
+            gEvent.ShowInspector();
             serializedObject.ApplyModifiedProperties();
         }
     }

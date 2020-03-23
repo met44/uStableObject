@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace                           uStableObject
 {
     [CreateAssetMenu(menuName = "uStableObject/GameEvent/Game Event Simple", order = 5)]
-    public class                    GameEvent : ScriptableObject
+    public class                    GameEvent : ScriptableObject, IGameEvent
     {
         #region Input Data
         [SerializeField] bool       _logListeners = false;
@@ -89,27 +89,21 @@ namespace                           uStableObject
         #endregion
 
 #if UNITY_EDITOR
-        public static class         Editor
+        void                        IGameEvent.ShowInspector()
         {
-            public static void      ShowInspector(GameEvent instance)
+            UnityEditor.EditorGUILayout.Separator();
+            UnityEditor.EditorGUILayout.LabelField("Listeners: ");
+            for (var i = 0; i < this._listeners.Count; ++i)
             {
-                if (instance._listeners != null)
+                var listener = this._listeners[i];
+                if (listener is Object)
                 {
-                    UnityEditor.EditorGUILayout.Separator();
-                    UnityEditor.EditorGUILayout.LabelField("Listeners: ");
-                    for (var i = 0; i < instance._listeners.Count; ++i)
-                    {
-                        var listener = instance._listeners[i];
-                        if (listener is Object)
-                        {
-                            Object obj = listener as Object;
-                            UnityEditor.EditorGUILayout.ObjectField("[" + i + "] " + listener.GetType().Name, obj, obj.GetType(), false);
-                        }
-                        else
-                        {
-                            UnityEditor.EditorGUILayout.LabelField("[" + i + "] " + listener.GetType().Name);
-                        }
-                    }
+                    Object obj = listener as Object;
+                    UnityEditor.EditorGUILayout.ObjectField("[" + i + "] " + listener.GetType().Name, obj, obj.GetType(), false);
+                }
+                else
+                {
+                    UnityEditor.EditorGUILayout.LabelField("[" + i + "] " + listener.GetType().Name);
                 }
             }
         }

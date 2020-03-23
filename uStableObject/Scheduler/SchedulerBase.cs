@@ -6,31 +6,69 @@ using uStableObject.Data;
 
 namespace                                       uStableObject
 {
-    public abstract class                       SchedulerBase<T> : ScriptableObject
+    public abstract partial class               SchedulerBase<T> : ScriptableObject
     {
         #region Input Data
         [SerializeField] FloatVar               _durationScaler;
+        [SerializeField] TimeProvider           _timeProvider;
         #endregion
 
         #region Members
-        bool                                    _running;
-        List<ScheduledTask>                     _scheduledTasksUnique = new List<ScheduledTask>();
-        List<ScheduledTask>                     _scheduledTasks = new List<ScheduledTask>();
+        protected bool                          _running;
+        protected bool                          _paused;
+        protected List<ScheduledTask>           _scheduledTasksUnique = new List<ScheduledTask>();
+        protected List<ScheduledTask>           _scheduledTasks = new List<ScheduledTask>();
         #endregion
 
         #region Properties
         public float                            DurationScale { get { return (this._durationScaler ? this._durationScaler : 1f); } }
+        public TimeProvider                     TimeProvider { get => _timeProvider; }
         #endregion
 
         #region Unity
         [RuntimeInitializeOnLoadMethod]
-        public void                             OnEnable()
+        void                                    OnEnable()
         {
             this.BeginUpdate();
         }
 
-        public void                             OnDisable()
+        void                                    OnDisable()
         {
+            this._running = false;
+        }
+        #endregion
+
+        #region Triggers
+        /// <summary>
+        /// For non asset instances, this allows to start the scheduler while ensuring it has a time provider. (Asset instances should wire the time provider in editor)
+        /// </summary>
+        /// <param name="timeProvider"></param>
+        public void                             Init(TimeProvider timeProvider)
+        {
+            this._timeProvider = timeProvider;
+            this.BeginUpdate();
+        }
+
+        public void                             Shutdown()
+        {
+            ScheduledTask                       sTask;
+
+            for (var i = 0; i < this._scheduledTasksUnique.Count; ++i)
+            {
+                sTask = this._scheduledTasksUnique[i];
+                sTask._onCompleted = null;
+                sTask._onCanceled = null;
+                AutoPool<ScheduledTask>.Dispose(sTask);
+            }
+            for (var i = 0; i < this._scheduledTasks.Count; ++i)
+            {
+                sTask = this._scheduledTasks[i];
+                sTask._onCompleted = null;
+                sTask._onCanceled = null;
+                AutoPool<ScheduledTask>.Dispose(sTask);
+            }
+            this._scheduledTasksUnique.Clear();
+            this._scheduledTasks.Clear();
             this._running = false;
         }
         #endregion
@@ -57,41 +95,54 @@ namespace                                       uStableObject
             ScheduledTask                       sTask;
             TimeSpan                            delay = TimeSpan.FromSeconds(1 / 5f);
 
+
             while (this._running)
             {
-                try
+                if (!this._paused)
                 {
-                    while (this._scheduledTasksUnique.Count > 0
-                           && this._scheduledTasksUnique[0]._endTime <= Time.realtimeSinceStartup)
+                    try
                     {
-                        sTask = this._scheduledTasksUnique[0];
-                        this._scheduledTasksUnique.RemoveAt(0);
-                        sTask._onCompleted?.Invoke(sTask._identifier);
-                        sTask._onCompleted = null;
-                        sTask._onCanceled = null;
-                        AutoPool<ScheduledTask>.Dispose(sTask);
+                        while (this._scheduledTasksUnique.Count > 0
+                               && this._scheduledTasksUnique[0]._endTime <= this._timeProvider.CurrentTime)
+                        {
+                            sTask = this._scheduledTasksUnique[0];
+                            this._scheduledTasksUnique.RemoveAt(0);
+                            sTask._onCompleted?.Invoke(sTask._identifier);
+                            sTask._onCompleted = null;
+                            sTask._onCanceled = null;
+                            AutoPool<ScheduledTask>.Dispose(sTask);
+                        }
+                        while (this._scheduledTasks.Count > 0
+                               && this._scheduledTasks[0]._endTime <= this._timeProvider.CurrentTime)
+                        {
+                            sTask = this._scheduledTasks[0];
+                            this._scheduledTasks.RemoveAt(0);
+                            sTask._onCompleted?.Invoke(sTask._identifier);
+                            sTask._onCompleted = null;
+                            sTask._onCanceled = null;
+                            AutoPool<ScheduledTask>.Dispose(sTask);
+                        }
                     }
-                    while (this._scheduledTasks.Count > 0
-                           && this._scheduledTasks[0]._endTime <= Time.realtimeSinceStartup)
+                    catch (Exception ex)
                     {
-                        sTask = this._scheduledTasks[0];
-                        this._scheduledTasks.RemoveAt(0);
-                        sTask._onCompleted?.Invoke(sTask._identifier);
-                        sTask._onCompleted = null;
-                        sTask._onCanceled = null;
-                        AutoPool<ScheduledTask>.Dispose(sTask);
+                        Debug.LogException(ex);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
                 }
                 await Task.Delay(delay);
+
+#if UNITY_EDITOR
+                if (!Application.isPlaying) break;
+#endif
             }
         }
-        #endregion
+#endregion
 
         #region Triggers
+        public void                             TogglePause(bool paused)
+        {
+            this._paused = paused;
+        }
+
         public void                             CancelUnique(T identifier)
         {
             ScheduledTask                       sTask;
@@ -111,11 +162,11 @@ namespace                                       uStableObject
             }
         }
 
-        public void                             CancelAll(T identifier)
+        public void                             CancelAll(T identifier, int max = int.MaxValue)
         {
             ScheduledTask                       sTask;
 
-            for (var i = this._scheduledTasks.Count; i >= 0; --i)
+            for (var i = this._scheduledTasks.Count - 1; i >= 0; --i)
             {
                 sTask = this._scheduledTasks[i];
                 if (sTask._identifier.Equals(identifier))
@@ -125,6 +176,10 @@ namespace                                       uStableObject
                     sTask._onCompleted = null;
                     sTask._onCanceled = null;
                     AutoPool<ScheduledTask>.Dispose(sTask);
+                    if (--max <= 0)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -151,9 +206,39 @@ namespace                                       uStableObject
                 instance = AutoPool<ScheduledTask>.Create();
                 instance._identifier = identifier;
             }
+            instance._startTime = this.TimeProvider.CurrentTime;
             instance._endTime = this.CalcEndTime(duration);
             instance._onCompleted = onCompleted;
             instance._onCanceled = onCanceled;
+            for (var i = 0; i < this._scheduledTasksUnique.Count; ++i)
+            {
+                if (this._scheduledTasksUnique[i]._endTime >= instance._endTime)
+                {
+                    this._scheduledTasksUnique.Insert(i, instance);
+                    return;
+                }
+            }
+            this._scheduledTasksUnique.Add(instance);
+        }
+
+        public void                             DirtyUnique(float newDuration, T identifier)
+        {
+            ScheduledTask                       instance = null;
+
+            for (var i = 0; i < this._scheduledTasksUnique.Count; ++i)
+            {
+                if (this._scheduledTasksUnique[i]._identifier.Equals(identifier))
+                {
+                    instance = this._scheduledTasksUnique[i];
+                    this._scheduledTasksUnique.RemoveAt(i);
+                    break;
+                }
+            }
+            if (instance == null)
+            {
+                return;
+            }
+            instance._endTime = this.CalcEndTime(instance._startTime, newDuration);
             for (var i = 0; i < this._scheduledTasksUnique.Count; ++i)
             {
                 if (this._scheduledTasksUnique[i]._endTime >= instance._endTime)
@@ -174,6 +259,7 @@ namespace                                       uStableObject
 
             instance = AutoPool<ScheduledTask>.Create();
             instance._identifier = identifier;
+            instance._startTime = this.TimeProvider.CurrentTime;
             instance._endTime = this.CalcEndTime(duration);
             instance._onCompleted = onCompleted;
             instance._onCanceled = onCanceled;
@@ -186,23 +272,28 @@ namespace                                       uStableObject
                 }
             }
             this._scheduledTasks.Add(instance);
-            this.BeginUpdate();
         }
         #endregion
-
+        
         #region Helpers
-        protected virtual float             CalcEndTime(float duration)
+        protected virtual int                   CalcEndTime(float duration)
         {
-            return (Time.realtimeSinceStartup + duration * this.DurationScale);
+            return (this._timeProvider.CurrentTime + Mathf.CeilToInt(duration * this.DurationScale));
+        }
+
+        protected virtual int                   CalcEndTime(int startTime, float duration)
+        {
+            return (startTime + Mathf.CeilToInt(duration * this.DurationScale));
         }
         #endregion
-
+        
         #region Data Types
         [Serializable]
         public class                            ScheduledTask
         {
             public T                            _identifier;
-            public float                        _endTime;
+            public int                          _startTime;
+            public int                          _endTime;
             public Action<T>                    _onCompleted;
             public Action<T>                    _onCanceled;
         }

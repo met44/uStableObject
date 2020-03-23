@@ -25,7 +25,10 @@ namespace                               uStableObject
             {
                 foreach (var asset in list.Asset)
                 {
-                    osef += asset.GetInstanceID();
+                    if (asset)
+                    {
+                        osef += asset.GetInstanceID();
+                    }
                 }
             }
         }

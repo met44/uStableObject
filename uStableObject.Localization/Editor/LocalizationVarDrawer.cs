@@ -5,22 +5,46 @@ using UnityEditor;
 
 namespace                       uStableObject.Data.Localization
 {
+    [CanEditMultipleObjects]
     [CustomPropertyDrawer(typeof(LocalizationVar))]
     public class                LocalizationVarDrawer : PropertyDrawer
     {
+        float                   _width = 100;
+        float                   _height = EditorGUIUtility.singleLineHeight;
+
+        public override float   GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            if (property.objectReferenceValue)
+            {
+                return (this._height);
+            }
+            else
+            {
+                return base.GetPropertyHeight(property, label);
+            }
+        }
+
         public override void    OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            // Draw label
-            position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
-
             if (property.serializedObject.isEditingMultipleObjects)
             {
-                var textRect = new Rect(position.x, position.y, position.width - 40, position.height);
-                EditorGUI.LabelField(textRect, "No Multi Edit Support");
+                EditorGUI.PropertyField(position, property);
                 EditorGUI.EndProperty();
                 return;
+            }
+
+            // Draw label
+            position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
+            if (Event.current.type == EventType.Repaint)
+            {
+                this._width = Mathf.Abs(position.width);
+                if (property.objectReferenceValue)
+                {
+                    LocalizationVar targetInstance = property.objectReferenceValue as LocalizationVar;
+                    this._height = ((int)(GUI.skin.textArea.CalcHeight(new GUIContent(targetInstance.Original), this._width - 40) / EditorGUIUtility.singleLineHeight) + 1) * EditorGUIUtility.singleLineHeight;
+                }
             }
 
             // Don't make child fields be indented
@@ -32,13 +56,17 @@ namespace                       uStableObject.Data.Localization
                 var prettyPrint = this.GetPrettyPrintPropertyPath(property);
                 // Calculate rects
                 var textRect = new Rect(position.x, position.y, position.width - 40, position.height);
-                var assetRect = new Rect(textRect.xMax + 2, position.y, 35, position.height);
+                var assetRect = new Rect(textRect.xMax + 2, position.y, 35, EditorGUIUtility.singleLineHeight);
                 LocalizationVar targetInstance = property.objectReferenceValue as LocalizationVar;
-                string text = EditorGUI.TextField(textRect, targetInstance.Original);
-                if (string.Compare(text, targetInstance.Original) != 0)
+                if (targetInstance)
                 {
-                    targetInstance.Original = text;
-                    EditorUtility.SetDirty(targetInstance);
+                    GUI.skin.textArea.wordWrap = true;
+                    string text = EditorGUI.TextArea(textRect, targetInstance.Original, GUI.skin.textArea);
+                    if (string.Compare(text, targetInstance.Original) != 0)
+                    {
+                        targetInstance.Original = text;
+                        EditorUtility.SetDirty(targetInstance);
+                    }
                 }
                 property.objectReferenceValue = EditorGUI.ObjectField(assetRect, GUIContent.none, property.objectReferenceValue, typeof(LocalizationVar), false);
             }
@@ -91,6 +119,22 @@ namespace                       uStableObject.Data.Localization
                                 AssetDatabase.AddObjectToAsset(property.objectReferenceValue, targetObject);
                                 EditorUtility.SetDirty(targetObject);
                                 AssetDatabase.SaveAssets();
+                                if (AssetDatabase.IsMainAsset(property.objectReferenceValue))
+                                {
+                                    Debug.LogError("Locvar became main asset, fixing...");
+                                    string assetPath = AssetDatabase.GetAssetPath(targetObject);
+                                    AssetDatabase.SetMainObject(targetObject, assetPath);
+                                    AssetDatabase.SaveAssets();
+                                    AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+                                    if (AssetDatabase.IsMainAsset(property.objectReferenceValue))
+                                    {
+                                        Debug.LogError("ERROR: Locvar is still the main asset");
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("SUCCESS: Locvar is no longer the main asset !");
+                                    }
+                                }
                             }
                         }
                     }

@@ -13,6 +13,7 @@ namespace                                       uStableObject.Data.Localization
     public class                                LocalizationManager : StringVar
     {
         #region Input Data
+        [SerializeField] bool                   _autoExportDefaultLocData = false;
         [SerializeField] StringVar              _gameVersion = null;
         [SerializeField] int                    _version = 0;
         [SerializeField] string                 _languageKey = "";
@@ -118,7 +119,7 @@ namespace                                       uStableObject.Data.Localization
             {
                 this._localizationDirs.Add(this.DefaultLocPath);
             }
-            if (this.ExportedVersion != this._version)
+            if (this._autoExportDefaultLocData && this.ExportedVersion != this._version)
             {
                 this.ExportDefaultLanguageTranslationData();
             }

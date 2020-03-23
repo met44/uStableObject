@@ -27,7 +27,7 @@ namespace uStableObject.Data
                     this._runtimeValue = this._maxValue;
                     this.Raise(this._maxValue);
                 }
-                if (value < this._minValue)
+                else if (value < this._minValue)
                 {
                     this._runtimeValue = this._minValue;
                     this.Raise(this._minValue);

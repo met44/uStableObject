@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace                               uStableObject.Utilities
 {
@@ -95,5 +96,42 @@ namespace                               uStableObject.Utilities
 #endif
             return (newInstance);
         }
+
+        public static void              SwapScript(Object instanceRef, System.Type type, string name = "")
+        {
+#if UNITY_EDITOR
+            var newInstance = ScriptableObject.CreateInstance(type);
+            MonoScript monoScript = MonoScript.FromScriptableObject(newInstance);
+            SerializedObject so = new SerializedObject(instanceRef);
+            SerializedProperty scriptProperty = so.FindProperty("m_Script");
+            so.Update();
+            scriptProperty.objectReferenceValue = monoScript;
+            so.ApplyModifiedProperties();
+            if (!string.IsNullOrEmpty(name))
+            {
+                so.targetObject.name = name;
+            }
+            EditorUtility.SetDirty(so.targetObject);
+#endif
+        }
+
+#if UNITY_EDITOR
+        [MenuItem("Assets/[Set as main asset]")]
+        static void                     SetAsMainAsset()
+        {
+            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            AssetDatabase.SetMainObject(Selection.activeObject, path);
+            AssetDatabase.ImportAsset(path);
+        }
+
+        [MenuItem("Assets/[Set as main asset]", true)]
+        static bool                     SetAsMainAssetValidation()
+        {
+            return (Selection.objects != null
+                    && Selection.objects.Length == 1
+                    && Selection.activeObject is ScriptableObject 
+                    && !AssetDatabase.IsMainAsset(Selection.activeObject));
+        }
+#endif
     }
 }

@@ -48,11 +48,24 @@ namespace                                   uStableObject.Utilities
             }
         }
 
+        public bool                         CanPlay()
+        {
+            return (this.gameObject.activeInHierarchy && !this._audioSource.isPlaying);
+        }
+
         public void                         PlayRandomIfNotPlaying()
         {
-            if (this.gameObject.activeInHierarchy && !this._audioSource.isPlaying)
+            if (this.CanPlay())
             {
                 this.PlayRandom();
+            }
+        }
+
+        public void                         PlayRandomIfNotPlaying(AudioClipListVar audioClipListVar)
+        {
+            if (this.CanPlay())
+            {
+                this.PlayRandom(audioClipListVar);
             }
         }
 

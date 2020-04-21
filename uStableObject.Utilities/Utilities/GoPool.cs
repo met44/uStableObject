@@ -130,6 +130,12 @@ namespace                               uStableObject.Utilities
                 Destroy(go);
             }
         }
+
+        public static void              ClearAll()
+        {
+            Instance._spawned.Clear();
+            Instance._storage.Clear();
+        }
         #endregion
 
         #region Helpers

@@ -81,20 +81,29 @@ namespace                                   uStableObject
         void                                IGameEvent.ShowInspector()
         {
             UnityEditor.EditorGUILayout.Separator();
-            UnityEditor.EditorGUILayout.LabelField("Listeners: ");
-            for (var i = 0; i < this._listeners.Count; ++i)
+            UnityEditor.EditorGUILayout.BeginVertical(GUI.skin.box);
+            if (this._listeners.Count > 0)
             {
-                var listener = this._listeners[i];
-                if (listener is Object)
+                UnityEditor.EditorGUILayout.LabelField("Listeners: ", UnityEditor.EditorStyles.boldLabel);
+                for (var i = 0; i < this._listeners.Count; ++i)
                 {
-                    Object obj = listener as Object;
-                    UnityEditor.EditorGUILayout.ObjectField("[" + i + "] " + listener.GetType().Name, obj, obj.GetType(), false);
-                }
-                else
-                {
-                    UnityEditor.EditorGUILayout.LabelField("[" + i + "] " + listener.GetType().Name);
+                    var listener = this._listeners[i];
+                    if (listener is Object)
+                    {
+                        Object obj = listener as Object;
+                        UnityEditor.EditorGUILayout.ObjectField("[" + i + "] " + listener.GetType().Name, obj, obj.GetType(), false);
+                    }
+                    else
+                    {
+                        UnityEditor.EditorGUILayout.LabelField("[" + i + "] " + listener.GetType().Name);
+                    }
                 }
             }
+            else
+            {
+                UnityEditor.EditorGUILayout.LabelField("Listeners: (None)", UnityEditor.EditorStyles.boldLabel);
+            }
+            UnityEditor.EditorGUILayout.EndVertical();
         }
 #endif
     }

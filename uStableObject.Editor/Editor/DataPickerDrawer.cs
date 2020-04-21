@@ -14,6 +14,7 @@ namespace                                   uStableObject
     {
         Editor                              _editor;
 
+        static bool                         IsExternal;
         static Dictionary<object, bool>     FoldedEntries = new Dictionary<object, bool>();
         static Dictionary<string, Type[]>   AcceptedTypes = new Dictionary<string, Type[]>();
         static Dictionary<string, string[]> AcceptedTypesStrings = new Dictionary<string, string[]>();
@@ -33,7 +34,10 @@ namespace                                   uStableObject
             EditorGUI.BeginProperty(position, label, property);
             this.ShowChildProperty(property, "", label, ref this._editor, typeBase, dataPicker.AllowBaseType, color);
             EditorGUI.EndProperty();
-            property.serializedObject.ApplyModifiedProperties();
+            if (property == null && property.serializedObject != null)
+            {
+                property.serializedObject.ApplyModifiedProperties();
+            }
         }
 
         void                                ShowChildProperty(SerializedProperty childProperty, string featureName, GUIContent title, ref Editor cachedEditor, Type acceptedType, bool allowBaseType, Color color)
@@ -50,16 +54,27 @@ namespace                                   uStableObject
             EditorGUI.indentLevel = 0;
             if (childProperty.objectReferenceValue)
             {
+                //Check forexternal asset
+                string propertyAssetPath = AssetDatabase.GetAssetPath(childProperty.objectReferenceValue);
+                string seriliazedObjectPath = AssetDatabase.GetAssetPath(childProperty.serializedObject.targetObject);
+                if (IsExternal != (string.Compare(propertyAssetPath, seriliazedObjectPath) != 0))
+                {
+                    IsExternal = !IsExternal;
+                    Debug.Log("this._isExternal=" + IsExternal);
+                    AcceptedTypes.Remove(acceptedType.Name);
+                    AcceptedTypesStrings.Remove(acceptedType.Name);
+                }
+
                 if (!FoldedEntries.TryGetValue(childProperty.objectReferenceValue, out toggledOn))
                 {
                     FoldedEntries.Add(childProperty.objectReferenceValue, toggledOn);
                 }
-                if (EditorGUILayout.ToggleLeft(title, toggledOn, EditorStyles.boldLabel) != toggledOn)
+                if (EditorGUILayout.ToggleLeft(title, toggledOn, EditorStyles.boldLabel, GUILayout.MinWidth(100)) != toggledOn)
                 {
                     toggledOn = !toggledOn;
                     FoldedEntries[childProperty.objectReferenceValue] = toggledOn;
                 }
-                string typeName = childProperty.objectReferenceValue.GetType().Name;
+                //string typeName = childProperty.objectReferenceValue.GetType().Name;
                 //EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
             }
             else
@@ -76,7 +91,7 @@ namespace                                   uStableObject
             }
             else 
             {
-                EditorGUILayout.PropertyField(childProperty, GUIContent.none, true, GUILayout.MinWidth(36), GUILayout.MaxWidth(36));
+                EditorGUILayout.PropertyField(childProperty, GUIContent.none, true, GUILayout.MinWidth(100), GUILayout.MaxWidth(36));
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndHorizontal();
                 GUI.backgroundColor = prevColor;
@@ -118,7 +133,15 @@ namespace                                   uStableObject
                 typesStrings[0] = "-";
                 for (var i = 1; i < typesStrings.Length; ++i)
                 {
-                    typesStrings[i] = types[i - 1].Name.Replace(title, "");
+                    typesStrings[i] = types[i - 1].Name.Replace(baseType.Name, "");
+                    if (string.IsNullOrEmpty(typesStrings[i]))
+                    {
+                        typesStrings[i] = "(Simple)";
+                    }
+                    if (IsExternal)
+                    {
+                        typesStrings[i] = "[External] " +  typesStrings[i];
+                    }
                 }
                 if (!AcceptedTypes.ContainsKey(baseType.Name))
                     AcceptedTypes.Add(baseType.Name, types);
@@ -130,18 +153,25 @@ namespace                                   uStableObject
                     AcceptedTypesStrings.Add(baseType.Name, typesStrings);
             }
             currentTypeIndex = childProperty.objectReferenceValue ? Array.IndexOf(types, childProperty.objectReferenceValue.GetType()) + 1 : 0;
-            int newTypeIndex = EditorGUILayout.Popup(currentTypeIndex, typesStrings);
+            int newTypeIndex = EditorGUILayout.Popup(currentTypeIndex, typesStrings, GUILayout.MinWidth(150));
             if (newTypeIndex != currentTypeIndex)
             {
                 if (newTypeIndex > 0) // set value
                 {
                     --newTypeIndex;
+                    if (IsExternal)
+                    {
+                        childProperty.objectReferenceValue = null;
+                        Debug.Log("Broke reference to external asset, now creating embeded asset instead.");
+                    }
                     if (childProperty.objectReferenceValue == null)
                     {
                         Undo.RecordObject(childProperty.serializedObject.targetObject, "CREATE_ASSET");
                         var name = childProperty.serializedObject.targetObject.name.Substring(childProperty.serializedObject.targetObject.name.LastIndexOf(" - ") + 3);
                         var headingName = (!string.IsNullOrEmpty(featureName) ? featureName + " - " : "") + title + " - ";
                         childProperty.objectReferenceValue = ScriptableUtils.AddAsChild(types[newTypeIndex], headingName + name, childProperty.serializedObject.targetObject, false);
+
+                        FoldedEntries.Add(childProperty.objectReferenceValue, true);
                     }
                     else
                     {
@@ -160,18 +190,27 @@ namespace                                   uStableObject
                         so.Update();
                         scriptProperty.objectReferenceValue = monoScript;
                         so.ApplyModifiedProperties();
+
+                        FoldedEntries.Add(so.targetObject, true);
                     }
-                    FoldedEntries.Add(childProperty.objectReferenceValue, true);
                 }
                 else // unset value
                 {
-                    FoldedEntries.Remove(childProperty.objectReferenceValue);
-                    Undo.RecordObject(childProperty.serializedObject.targetObject, "DELETE_ASSET");
-                    AssetDatabase.RemoveObjectFromAsset(childProperty.objectReferenceValue);
-                    Undo.RecordObject(childProperty.objectReferenceValue, "DELETE_ASSET");
-                    UnityEngine.Object.DestroyImmediate(childProperty.objectReferenceValue);
-                    childProperty.objectReferenceValue = null;
-                    throw new Exception("DELETED ASSET SUCCESSFULLY");
+                    if (IsExternal)
+                    {
+                        childProperty.objectReferenceValue = null;
+                        Debug.LogError("Deletion blocked for external assets to prevent user error with side effects. Delete directly or use the ScriptableTools windows if needed.");
+                    }
+                    else
+                    {
+                        FoldedEntries.Remove(childProperty.objectReferenceValue);
+                        Undo.RecordObject(childProperty.serializedObject.targetObject, "DELETE_ASSET");
+                        AssetDatabase.RemoveObjectFromAsset(childProperty.objectReferenceValue);
+                        Undo.RecordObject(childProperty.objectReferenceValue, "DELETE_ASSET");
+                        UnityEngine.Object.DestroyImmediate(childProperty.objectReferenceValue);
+                        childProperty.objectReferenceValue = null;
+                        throw new Exception("DELETED ASSET SUCCESSFULLY");
+                    }
                 }
                 return (true);
             }

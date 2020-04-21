@@ -8,11 +8,11 @@ namespace                       uStableObject
     [CreateAssetMenu(menuName = "uStableObject/TimeProvider/Unity Real Time")]
     public class                TimeProviderUnityRealTime : TimeProvider
     {
-        public override int     CurrentTime
+        public override uint     CurrentTime
         {
             get
             {
-                return ((int)Time.realtimeSinceStartup);
+                return ((uint)Time.realtimeSinceStartup);
             }
         }
 

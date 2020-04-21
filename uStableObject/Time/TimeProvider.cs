@@ -7,7 +7,7 @@ namespace                       uStableObject
 {
     public abstract class       TimeProvider : ScriptableObject
     {
-        public abstract int     CurrentTime { get; }
+        public abstract uint    CurrentTime { get; }
         public abstract float   CurrentTimeF { get; }
     }
 }

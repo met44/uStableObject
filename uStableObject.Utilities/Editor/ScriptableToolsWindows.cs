@@ -47,6 +47,8 @@ namespace                               uStableObject.Utilities.Editor
             this.ShowSplitGUI();
             GUILayout.Space(30);
             this.ShowRenameSelectedGUI();
+            GUILayout.Space(30);
+            this.ShowDeleteSelectedGUI();
         }
 
         void                            ShowMergeGUI()
@@ -145,6 +147,40 @@ namespace                               uStableObject.Utilities.Editor
             }
         }
 
+        object readyTodelete;
+        void                            ShowDeleteSelectedGUI()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Delete Selected", EditorStyles.boldLabel);
+            if (GUILayout.Button("clear"))
+            {
+                Selection.activeObject = null;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            if (Selection.objects != null)
+            {
+                var maxWidth = GUILayout.MaxWidth(this.position.width < 300 ? 35 : this.position.width * 0.35f);
+                foreach (var obj in Selection.objects)
+                {
+                    if (obj is ScriptableObject)
+                    {
+                        GUILayout.BeginHorizontal();
+                        EditorGUILayout.ObjectField("", obj, typeof(ScriptableObject), false, maxWidth);
+                        if (GUILayout.Toggle(obj.Equals(readyTodelete), "Prepare delete"))
+                        {
+                            readyTodelete = obj;
+                            if (GUILayout.Button("delete"))
+                            {
+                                this.DeleteAsset(obj);
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                }
+            }
+        }
+
         void                            SplitAssets(bool prepareForMergeBack)
         {
             string assetPath = AssetDatabase.GetAssetPath(this._splitTarget);
@@ -162,6 +198,15 @@ namespace                               uStableObject.Utilities.Editor
             EditorUtility.SetDirty(this._splitTarget);
             AssetDatabase.SaveAssets();
             Selection.activeObject = this._splitTarget;
+        }
+
+        void                            DeleteAsset(Object asset)
+        {
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            string directory = System.IO.Path.GetDirectoryName(assetPath);
+            AssetDatabase.RemoveObjectFromAsset(asset);
+            DestroyImmediate(asset);
+            AssetDatabase.SaveAssets();
         }
     }
 }

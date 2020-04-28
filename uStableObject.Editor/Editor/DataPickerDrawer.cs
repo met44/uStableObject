@@ -60,7 +60,6 @@ namespace                                   uStableObject
                 if (IsExternal != (string.Compare(propertyAssetPath, seriliazedObjectPath) != 0))
                 {
                     IsExternal = !IsExternal;
-                    Debug.Log("this._isExternal=" + IsExternal);
                     AcceptedTypes.Remove(acceptedType.Name);
                     AcceptedTypesStrings.Remove(acceptedType.Name);
                 }
@@ -120,14 +119,19 @@ namespace                                   uStableObject
                     types = Assembly
                             .GetAssembly(baseType)
                             .GetTypes()
-                            .Where(t => t.BaseType == baseType || t == baseType).ToArray();
+                            .Where(t => !t.IsAbstract
+                                        && baseType.IsAssignableFrom(t))
+                            .ToArray();
                 }
                 else
                 {
                     types = Assembly
                             .GetAssembly(baseType)
                             .GetTypes()
-                            .Where(t => t.BaseType == baseType).ToArray();
+                            .Where(t => !t.IsAbstract
+                                        && baseType.IsAssignableFrom(t)
+                                        && t != baseType)
+                            .ToArray();
                 }
                 typesStrings = new string[types.Length + 1];
                 typesStrings[0] = "-";
@@ -209,7 +213,7 @@ namespace                                   uStableObject
                         Undo.RecordObject(childProperty.objectReferenceValue, "DELETE_ASSET");
                         UnityEngine.Object.DestroyImmediate(childProperty.objectReferenceValue);
                         childProperty.objectReferenceValue = null;
-                        throw new Exception("DELETED ASSET SUCCESSFULLY");
+                        Debug.LogError("DELETED ASSET SUCCESSFULLY");
                     }
                 }
                 return (true);

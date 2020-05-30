@@ -7,7 +7,7 @@ using uStableObject.Data;
 
 namespace               uStableObject.UI
 {
-    public class        SimpleEntityRow : EntityRowBase<IEntity, UnityEventTypes.Entity>
+    public class        SimpleDisplayableRow : DisplayableRowBase<IDisplayable, UnityEventTypes.Displayable>
     {
     }
 }

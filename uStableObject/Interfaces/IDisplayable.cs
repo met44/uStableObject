@@ -2,7 +2,7 @@
 
 namespace uStableObject.Data
 {
-    public interface IEntity
+    public interface IDisplayable
     {
         Sprite Icon { get; }
         string Name { get; }

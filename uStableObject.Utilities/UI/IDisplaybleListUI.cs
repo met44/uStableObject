@@ -2,7 +2,7 @@
 
 namespace uStableObject.UI
 {
-    public interface IEntityListUI<T> where T : IEntity
+    public interface IDisplayableListUI<T> where T : IDisplayable
     {
         T SelectedEntity { get; set; }
     }

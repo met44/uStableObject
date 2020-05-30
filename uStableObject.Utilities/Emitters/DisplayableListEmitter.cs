@@ -6,15 +6,15 @@ using uStableObject.Data;
 
 namespace                   uStableObject.Utilities
 {
-    public class            EntityListEmitter : DataEmitterBase<IEntityList, UnityEventTypes.EntityList>
+    public class            DisplayableListEmitter : DataEmitterBase<IDisplayableList, UnityEventTypes.DisplayableList>
     {
         #region Triggers
-        public void         Emit(EntityListVar val)
+        public void         Emit(DisplaybleListVar val)
         {
             base.Emit(val);
         }
 
-        public void         Memorize(EntityListVar val)
+        public void         Memorize(DisplaybleListVar val)
         {
             base.Memorize(val);
         }

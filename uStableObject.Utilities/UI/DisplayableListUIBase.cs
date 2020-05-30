@@ -8,13 +8,13 @@ using UnityEngine.UI;
 
 namespace                                   uStableObject.UI
 {
-    public abstract class                   EntityListUIBase<T, R, E> : MonoBehaviour, IEntityListUI<T>
-                                            where T : IEntity
+    public abstract class                   DisplayableListUIBase<T, R, E> : MonoBehaviour, IDisplayableListUI<T>
+                                            where T : IDisplayable
                                             where E : UnityEvent<T>
-                                            where R : EntityRowBase<T, E>
+                                            where R : DisplayableRowBase<T, E>
     {
         #region Input Data
-        [SerializeField] EntityListVar      _list;
+        [SerializeField] DisplaybleListVar      _list;
         [SerializeField] RectTransform      _instancesRoot;
         [SerializeField] R                  _entityRowPrefab;
         [SerializeField] int                _entitiesPerRow = 1;
@@ -32,7 +32,7 @@ namespace                                   uStableObject.UI
         #region Properties
         public IReadOnlyList<R>             Instances       { get { return (this._instances); } }
         public T                            SelectedEntity  { get; set; }
-        public IEntityList                  ListVar         { get; set; }
+        public IDisplayableList                  ListVar         { get; set; }
         #endregion
 
         #region Unity

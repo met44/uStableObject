@@ -48,7 +48,7 @@ namespace                                   uStableObject
             Color prevColor = GUI.backgroundColor;
             GUI.backgroundColor = EditorGUIUtility.isProSkin ? color : color * 0.6f;
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.Space(30);
+            GUILayout.Space(30);
             EditorGUILayout.BeginHorizontal(GUI.skin.textArea);// EditorStyles.helpBox);//
             int indentLevel = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
@@ -78,7 +78,7 @@ namespace                                   uStableObject
             }
             else
             {
-                EditorGUILayout.Space(14);
+                GUILayout.Space(14);
                 EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
             }
             EditorGUI.indentLevel = indentLevel;

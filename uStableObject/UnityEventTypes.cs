@@ -37,8 +37,8 @@ namespace                           uStableObject
         [System.Serializable]
         public class        Sprite : UnityEvent<UnityEngine.Sprite> { }
         [System.Serializable]
-        public class        Entity : UnityEvent<IEntity> { }
+        public class        Displayable : UnityEvent<IDisplayable> { }
         [System.Serializable]
-        public class        EntityList : UnityEvent<IEntityList> { }
+        public class        DisplayableList : UnityEvent<IDisplayableList> { }
     }
 }

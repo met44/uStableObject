@@ -2,8 +2,8 @@
 
 namespace                       uStableObject.Data
 {
-    public interface            IEntityList
+    public interface            IDisplayableList
     {
-        IEnumerable<IEntity>    Entities { get; }
+        IEnumerable<IDisplayable>    Entities { get; }
     }
 }

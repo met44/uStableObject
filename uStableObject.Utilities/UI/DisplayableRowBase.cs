@@ -6,8 +6,8 @@ using uStableObject.Data;
 
 namespace                                   uStableObject.UI
 {
-    public abstract class                   EntityRowBase<T, E> : MonoBehaviour
-                                            where T : IEntity 
+    public abstract class                   DisplayableRowBase<T, E> : MonoBehaviour
+                                            where T : IDisplayable 
                                             where E : UnityEvent<T>
     {
         #region Input Data
@@ -22,7 +22,7 @@ namespace                                   uStableObject.UI
         #endregion
 
         #region Properties
-        public IEntityListUI<T>             List { get; set; }
+        public IDisplayableListUI<T>             List { get; set; }
         public T                            Entity { get { return (this._entity); } }
         #endregion
 

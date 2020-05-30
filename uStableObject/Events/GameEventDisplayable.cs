@@ -7,6 +7,6 @@ using uStableObject.Data;
 
 namespace uStableObject
 {
-    [CreateAssetMenu(menuName = "uStableObject/GameEvent/Entity", order = 5)]
-    public class                GameEventEntity : GameEventBase<IEntity> { }
+    [CreateAssetMenu(menuName = "uStableObject/GameEvent/Displayable", order = 5)]
+    public class                GameEventDisplayable : GameEventBase<IDisplayable> { }
 }

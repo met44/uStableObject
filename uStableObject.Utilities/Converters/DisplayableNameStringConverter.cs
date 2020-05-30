@@ -7,14 +7,14 @@ using uStableObject.Utilities;
 
 namespace                                       uStableObject.Utilities.Converters
 {
-    public class                                EntityNameStringConverter : MonoBehaviour
+    public class                                DisplayableNameStringConverter : MonoBehaviour
     {
         #region Input Data
         [SerializeField] UnityEventTypes.String _ouputValue;
         #endregion
 
         #region Triggers
-        public void                             ConvertValue(IEntity val)
+        public void                             ConvertValue(IDisplayable val)
         {
             this._ouputValue.Invoke(val.Name);
         }

@@ -11,6 +11,13 @@ namespace                               uStableObject.Utilities
         static BaseInputModule          registeredInputModule;
         static System.Func<GameObject>  GetCurrentFocusedGameObject;
 
+        [RuntimeInitializeOnLoadMethod]
+        static void                     ResetDelegate() //ensures it works with domain reload off
+        {
+            registeredInputModule = null;
+            GetCurrentFocusedGameObject = null;
+        }
+
         static void EnsureDelegate(EventSystem evSys)
         {
             if (registeredInputModule != evSys.currentInputModule)

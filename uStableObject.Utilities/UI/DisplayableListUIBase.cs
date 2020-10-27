@@ -14,7 +14,7 @@ namespace                                   uStableObject.UI
                                             where R : DisplayableRowBase<T, E>
     {
         #region Input Data
-        [SerializeField] DisplaybleListVar      _list;
+        [SerializeField] DisplayableListVar      _list;
         [SerializeField] RectTransform      _instancesRoot;
         [SerializeField] R                  _entityRowPrefab;
         [SerializeField] int                _entitiesPerRow = 1;

@@ -9,12 +9,12 @@ namespace                   uStableObject.Utilities
     public class            DisplayableListEmitter : DataEmitterBase<IDisplayableList, UnityEventTypes.DisplayableList>
     {
         #region Triggers
-        public void         Emit(DisplaybleListVar val)
+        public void         Emit(DisplayableListVar val)
         {
             base.Emit(val);
         }
 
-        public void         Memorize(DisplaybleListVar val)
+        public void         Memorize(DisplayableListVar val)
         {
             base.Memorize(val);
         }

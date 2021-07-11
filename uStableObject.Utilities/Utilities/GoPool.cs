@@ -44,10 +44,9 @@ namespace                               uStableObject.Utilities
 
         void                            OnDestroy()
         {
-            if (_instance == null)
+            if (_instance == this)
             {
                 _instance = null;
-                Destroy(this.gameObject);
             }
         }
         #endregion
